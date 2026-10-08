@@ -15,6 +15,17 @@ public class Granada extends Arma {
     private boolean detonada;
     private long momentoLanzamiento;
 
+    /** Sobrecarga para granadas explosivas (letales): solo se indica el daño. */
+    public Granada(String nombre, int precio, Equipo equipo, int danio) {
+        this(nombre, precio, equipo, danio, 4f, 1.5f, true, "onda expansiva");
+    }
+
+    /** Sobrecarga para granadas tácticas (no letales): solo se indica el efecto. */
+    public Granada(String nombre, int precio, Equipo equipo, String efecto) {
+        this(nombre, precio, equipo, 0, 6f, 1.5f, false, efecto);
+    }
+
+    /** Constructor completo: llama a super y valida que la letalidad coincida con el daño. */
     public Granada(String nombre, int precio, Equipo equipo, int danio, float radioExplosion,
                    float tiempoActivacion, boolean esLetal, String efecto) {
         super(nombre, precio, equipo);

@@ -6,6 +6,17 @@ public class Francotirador extends ArmaDeFuego {
     private final float penetracion;
     private boolean zoomActivo;
 
+    /** Constructor simple: francotirador estándar (valores del AWP) para los antiterroristas. */
+    public Francotirador(String nombre, int precio) {
+        this(nombre, precio, Equipo.ANTITERRORISTAS);
+    }
+
+    /** Sobrecarga: se elige el equipo; el resto de los valores son los estándar. */
+    public Francotirador(String nombre, int precio, Equipo equipo) {
+        this(nombre, precio, equipo, 115, 0.95f, 5, 30, 3.6f, 4f, 0.5f);
+    }
+
+    /** Constructor completo: todos los valores; llama a super y valida zoom y penetración. */
     public Francotirador(String nombre, int precio, Equipo equipo, int danio, float precision,
                          int capacidadCargador, int municionReserva, float tiempoRecarga,
                          float zoom, float penetracion) {
