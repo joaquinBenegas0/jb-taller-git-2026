@@ -48,6 +48,12 @@ public class Francotirador extends ArmaDeFuego {
         return zoom;
     }
 
+    /** La mira multiplica el alcance efectivo del arma. */
+    @Override
+    protected float alcanceEfectivo() {
+        return super.alcanceEfectivo() * zoom;
+    }
+
     /** Con el zoom activo la bala aprovecha la penetración. Parte del daño base del padre. */
     @Override
     protected int calcularDanioPorBala() {

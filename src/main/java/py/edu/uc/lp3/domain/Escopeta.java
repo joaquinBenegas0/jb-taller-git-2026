@@ -23,6 +23,12 @@ public class Escopeta extends ArmaDeFuego {
         return distanciaEfectiva;
     }
 
+    /** La escopeta solo es efectiva a corta distancia. */
+    @Override
+    protected float alcanceEfectivo() {
+        return distanciaEfectiva;
+    }
+
     /** Cada cartucho reparte el daño base en varios perdigones. */
     @Override
     protected int calcularDanioPorBala() {

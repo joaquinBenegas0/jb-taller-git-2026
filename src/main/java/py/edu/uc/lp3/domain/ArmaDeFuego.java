@@ -49,13 +49,36 @@ public abstract class ArmaDeFuego extends Arma {
 
     /** final: ninguna hija puede saltarse el control de munición. */
     public final String disparar() {
+        return efectuarDisparo(calcularDanioPorBala(), "");
+    }
+
+    /**
+     * Sobrecarga: la misma acción indicando la distancia al objetivo, en metros.
+     * Más allá del alcance efectivo el daño cae en proporción a la distancia.
+     */
+    public final String disparar(float distanciaMetros) {
+        if (distanciaMetros < 0f) {
+            throw new IllegalArgumentException("La distancia no puede ser negativa");
+        }
+        float alcance = alcanceEfectivo();
+        int danioPorBala = calcularDanioPorBala();
+        String detalle = " a " + distanciaMetros + " m";
+        if (distanciaMetros > alcance) {
+            danioPorBala = Math.round(danioPorBala * alcance / distanciaMetros);
+            detalle += " (fuera del alcance efectivo de " + alcance + " m)";
+        }
+        return efectuarDisparo(danioPorBala, detalle);
+    }
+
+    /** Único lugar donde se descuenta munición: lo usan las dos versiones de disparar. */
+    private String efectuarDisparo(int danioPorBala, String detalle) {
         if (municionCargador == 0) {
             return obtenerNombre() + ": click... cargador vacío, hay que recargar";
         }
         int balas = Math.min(balasPorDisparo(), municionCargador);
         municionCargador -= balas;
-        int danioTotal = calcularDanioPorBala() * balas;
-        return obtenerNombre() + " dispara " + balas + " bala(s): " + danioTotal
+        int danioTotal = danioPorBala * balas;
+        return obtenerNombre() + " dispara " + balas + " bala(s)" + detalle + ": " + danioTotal
                 + " de daño [" + municionCargador + "/" + municionReserva + "]";
     }
 
@@ -78,6 +101,11 @@ public abstract class ArmaDeFuego extends Arma {
     /** Por defecto un disparo gasta una bala. Pistola y rifle lo redefinen. */
     protected int balasPorDisparo() {
         return 1;
+    }
+
+    /** Alcance efectivo en metros. Escopeta y francotirador lo redefinen. */
+    protected float alcanceEfectivo() {
+        return 50f;
     }
 
     /** Daño base por bala. Francotirador y escopeta lo redefinen partiendo de este valor. */
