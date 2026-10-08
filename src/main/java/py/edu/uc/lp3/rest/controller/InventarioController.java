@@ -1,18 +1,20 @@
-package py.edu.uc.lp3.jb_taller_git_2026.web;
+package py.edu.uc.lp3.rest.controller;
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Arma;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Equipo;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Escopeta;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Francotirador;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Granada;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Pistola;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.RifleAsalto;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Subfusil;
+import py.edu.uc.lp3.constants.ApiPaths;
+
+import py.edu.uc.lp3.domain.Arma;
+import py.edu.uc.lp3.domain.Equipo;
+import py.edu.uc.lp3.domain.Escopeta;
+import py.edu.uc.lp3.domain.Francotirador;
+import py.edu.uc.lp3.domain.Granada;
+import py.edu.uc.lp3.domain.Pistola;
+import py.edu.uc.lp3.domain.RifleAsalto;
+import py.edu.uc.lp3.domain.Subfusil;
 
 /**
  * Inventario: guarda cualquier arma como el tipo padre Arma y le pide a cada una que se use.
@@ -24,7 +26,7 @@ public class InventarioController {
     public record UsoDeArma(String arma, String resultado) {
     }
 
-    @GetMapping("/api/armas/inventario")
+    @GetMapping(ApiPaths.ARMAS + ApiPaths.INVENTARIO)
     public List<UsoDeArma> usarInventario() {
         List<Arma> inventario = List.of(
                 new RifleAsalto("AK-47", 2700, Equipo.TERRORISTAS, 36, 0.73f, 30, 90, 2.5f, 10f),

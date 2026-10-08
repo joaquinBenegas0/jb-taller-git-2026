@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.jb_taller_git_2026.web;
+package py.edu.uc.lp3.rest.controller;
 
 import java.util.Map;
 
@@ -10,22 +10,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Equipo;
-import py.edu.uc.lp3.jb_taller_git_2026.cs2.Francotirador;
+import py.edu.uc.lp3.constants.ApiPaths;
+
+import py.edu.uc.lp3.domain.Equipo;
+import py.edu.uc.lp3.domain.Francotirador;
 
 /**
  * Construye un arma del dominio con los parámetros de la URL.
  * El controller no valida ni corrige valores: eso lo hace el constructor de la clase.
  */
 @RestController
-@RequestMapping("/api/armas")
+@RequestMapping(ApiPaths.ARMAS)
 public class ArmaController {
 
     public record FrancotiradorCreado(String nombre, int precio, Equipo equipo, float precision,
                                       float zoom, int municionCargador, int municionReserva) {
     }
 
-    @GetMapping("/francotirador")
+    @GetMapping(ApiPaths.FRANCOTIRADOR)
     public FrancotiradorCreado construirFrancotirador(
             @RequestParam("nombre") String nombre,
             @RequestParam("precio") int precio,

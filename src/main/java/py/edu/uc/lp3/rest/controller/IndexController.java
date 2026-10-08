@@ -1,9 +1,11 @@
-package py.edu.uc.lp3.jb_taller_git_2026.web;
+package py.edu.uc.lp3.rest.controller;
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import py.edu.uc.lp3.constants.ApiPaths;
 
 /**
  * Portero del servicio: solo confirma que la API está viva y quién la hizo.
@@ -16,7 +18,7 @@ public class IndexController {
                                  String estado, List<String> endpoints) {
     }
 
-    @GetMapping("/")
+    @GetMapping(ApiPaths.INDEX)
     public EstadoServicio index() {
         return new EstadoServicio(
                 "jb-taller-git-2026",

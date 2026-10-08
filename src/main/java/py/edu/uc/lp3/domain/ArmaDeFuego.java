@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.jb_taller_git_2026.cs2;
+package py.edu.uc.lp3.domain;
 
 /**
  * Concentra las reglas de munición: ninguna hija ni clase externa puede

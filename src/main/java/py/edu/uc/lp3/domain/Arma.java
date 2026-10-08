@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.jb_taller_git_2026.cs2;
+package py.edu.uc.lp3.domain;
 
 /**
  * Raíz de la jerarquía: todo lo que se puede comprar en la tienda.
