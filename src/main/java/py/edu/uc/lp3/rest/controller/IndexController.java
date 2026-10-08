@@ -27,7 +27,8 @@ public class IndexController {
                 "activo",
                 List.of(
                         "GET /",
-                        "GET /api/armas/francotirador?nombre=AWP&precio=4750",
+                        "GET /api/armas/francotirador?nombre=AWP&precio=4750&distancia=300",
+                        "GET /api/armas/francotirador/personalizado?nombre=Scout&precio=1700&equipo=TERRORISTAS&danio=74&precision=0.9&cargador=10&reserva=90&recarga=2.9&zoom=2&penetracion=0.3",
                         "GET /api/armas/inventario"));
     }
 }

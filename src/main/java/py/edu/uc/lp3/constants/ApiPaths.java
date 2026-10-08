@@ -6,6 +6,7 @@ public final class ApiPaths {
     public static final String INDEX = "/";
     public static final String ARMAS = "/api/armas";
     public static final String FRANCOTIRADOR = "/francotirador";
+    public static final String FRANCOTIRADOR_PERSONALIZADO = "/francotirador/personalizado";
     public static final String INVENTARIO = "/inventario";
 
     private ApiPaths() {
