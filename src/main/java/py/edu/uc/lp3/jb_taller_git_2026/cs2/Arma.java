@@ -25,6 +25,18 @@ public abstract class Arma {
         this.equipo = equipo;
     }
 
+    /**
+     * Mensaje común a todas las armas: "usate".
+     * El padre no puede implementarlo porque cada tipo se usa distinto:
+     * un arma de fuego dispara (y controla su munición), una granada se lanza (y controla su activación).
+     */
+    public abstract String usar();
+
+    /** Cómo se muestra cualquier arma en la tienda: igual para todas. */
+    public String mostrarEnTienda() {
+        return nombre + " - $" + precio + " (" + equipo + ")";
+    }
+
     public String obtenerNombre() {
         return nombre;
     }
@@ -39,6 +51,6 @@ public abstract class Arma {
 
     @Override
     public String toString() {
-        return nombre + " ($" + precio + ", " + equipo + ")";
+        return mostrarEnTienda();
     }
 }

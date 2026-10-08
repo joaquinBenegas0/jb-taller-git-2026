@@ -25,6 +25,7 @@ public class IndexController {
                 "activo",
                 List.of(
                         "GET /",
-                        "GET /api/armas/francotirador?nombre=AWP&precio=4750"));
+                        "GET /api/armas/francotirador?nombre=AWP&precio=4750",
+                        "GET /api/armas/inventario"));
     }
 }

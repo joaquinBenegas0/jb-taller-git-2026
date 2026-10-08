@@ -41,6 +41,12 @@ public abstract class ArmaDeFuego extends Arma {
         this.municionReserva = municionReserva;
     }
 
+    /** Usar un arma de fuego es disparar; final para que ninguna hija cambie esa regla. */
+    @Override
+    public final String usar() {
+        return disparar();
+    }
+
     /** final: ninguna hija puede saltarse el control de munición. */
     public final String disparar() {
         if (municionCargador == 0) {

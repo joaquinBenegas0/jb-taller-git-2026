@@ -40,6 +40,12 @@ public class Granada extends Arma {
         this.efecto = efecto;
     }
 
+    /** Usar una granada es lanzarla. */
+    @Override
+    public String usar() {
+        return lanzar();
+    }
+
     public String lanzar() {
         if (lanzada) {
             return obtenerNombre() + ": ya fue lanzada";
