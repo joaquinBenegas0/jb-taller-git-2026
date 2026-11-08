@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import py.edu.uc.lp3exceptions.Cs2Exception;
+import py.edu.uc.lp3exceptions.DisparoNoPermitidoException;
+import py.edu.uc.lp3exceptions.MunicionAgotadaException;
 import py.edu.uc.lp3exceptions.RecursoNoEncontradoException;
 
 /**
@@ -24,6 +26,20 @@ public class ManejadorDeExcepciones {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorRespuesta recursoNoEncontrado(RecursoNoEncontradoException e) {
         return deDominio(HttpStatus.NOT_FOUND, e);
+    }
+
+    /** Regla 1: el arma existe pero su estado (cargador vacío) choca con el pedido. */
+    @ExceptionHandler(MunicionAgotadaException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorRespuesta municionAgotada(MunicionAgotadaException e) {
+        return deDominio(HttpStatus.CONFLICT, e);
+    }
+
+    /** Regla 2: el JSON es válido pero el juego no permite ese disparo. */
+    @ExceptionHandler(DisparoNoPermitidoException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorRespuesta disparoNoPermitido(DisparoNoPermitidoException e) {
+        return deDominio(HttpStatus.UNPROCESSABLE_ENTITY, e);
     }
 
     /** Invariante de construcción roto (precio 0, blindaje 150...): el objeto nunca llegó a existir. */
