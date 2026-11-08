@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import py.edu.uc.lp3exceptions.DisparoNoPermitidoException;
 
 /**
  * Jugador de una partida de CS2: tiene vida, blindaje (kevlar), dinero y un arma equipada.
@@ -82,6 +83,56 @@ public class Jugador implements Reportable {
     /** El jugador suelta el arma (por ejemplo, cuando la tienda la retira). */
     public void soltarArma() {
         this.arma = null;
+    }
+
+    /**
+     * Simulación de un disparo: este jugador le dispara a otro con su arma equipada.
+     * Regla 1 (munición): el arma gasta balas y con el cargador vacío no dispara.
+     * Regla 2 (daño): el blindaje del objetivo absorbe hasta la mitad del daño, el resto baja la vida;
+     * si la vida llega a 0 el objetivo queda eliminado y el tirador cobra la recompensa del arma.
+     * Primero se validan todas las condiciones y recién después cambia el estado.
+     */
+    public Impacto dispararA(Jugador objetivo, float distanciaMetros) {
+        if (objetivo == null) {
+            throw new IllegalArgumentException("El disparo necesita un objetivo");
+        }
+        if (estaEliminado()) {
+            throw new DisparoNoPermitidoException(nombre + " está eliminado y no puede disparar");
+        }
+        if (arma == null) {
+            throw new DisparoNoPermitidoException(nombre + " no tiene un arma equipada");
+        }
+        if (objetivo == this) {
+            throw new DisparoNoPermitidoException(nombre + " no puede dispararse a sí mismo");
+        }
+        if (objetivo.estaEliminado()) {
+            throw new DisparoNoPermitidoException(objetivo.nombre + " ya está eliminado");
+        }
+        if (objetivo.equipo == equipo) {
+            throw new DisparoNoPermitidoException("Fuego amigo: " + nombre + " y " + objetivo.nombre
+                    + " son del mismo equipo (" + equipo + ")");
+        }
+        int danio = arma.impactar(distanciaMetros);
+        int vidaAntes = objetivo.vida;
+        int blindajeAntes = objetivo.blindaje;
+        objetivo.recibirDanio(danio);
+        int recompensa = objetivo.estaEliminado() ? cobrarRecompensa(arma.recompensaPorEliminacion()) : 0;
+        return new Impacto(this, objetivo, arma, distanciaMetros, danio,
+                blindajeAntes - objetivo.blindaje, vidaAntes - objetivo.vida, recompensa);
+    }
+
+    /** Regla 2: el blindaje absorbe hasta la mitad del daño; la vida nunca baja de 0. */
+    private void recibirDanio(int danio) {
+        int absorbido = Math.min(blindaje, danio / 2);
+        blindaje -= absorbido;
+        vida = Math.max(0, vida - (danio - absorbido));
+    }
+
+    /** Suma la recompensa sin pasar del tope de dinero; devuelve lo que efectivamente cobró. */
+    private int cobrarRecompensa(int recompensa) {
+        int cobrado = Math.min(recompensa, DINERO_MAXIMO - dinero);
+        dinero += cobrado;
+        return cobrado;
     }
 
     public boolean estaEliminado() {

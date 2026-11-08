@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import py.edu.uc.lp3exceptions.DisparoNoPermitidoException;
 
 /**
  * Raíz de la jerarquía: todo lo que se puede comprar en la tienda.
@@ -88,6 +89,15 @@ public abstract class Arma implements Reportable {
     public void cambiarPrecio(int nuevoPrecio) {
         validarPrecio(nuevoPrecio);
         this.precio = nuevoPrecio;
+    }
+
+    /**
+     * Regla 1 de la simulación: disparar contra un objetivo a cierta distancia y devolver el daño.
+     * Por defecto un arma no dispara (una granada se lanza); ArmaDeFuego lo redefine.
+     * Visibilidad de paquete: solo Jugador, dentro del dominio, puede pedirlo.
+     */
+    int impactar(float distanciaMetros) {
+        throw new DisparoNoPermitidoException(nombre + " no es un arma de fuego: no se puede disparar con ella");
     }
 
     /** Dinero que cobra el tirador cuando elimina a alguien con esta arma. */

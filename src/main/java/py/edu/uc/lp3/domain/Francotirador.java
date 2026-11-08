@@ -69,4 +69,10 @@ public class Francotirador extends ArmaDeFuego {
         int base = super.calcularDanioPorBala();
         return zoomActivo ? Math.round(base * (1f + penetracion)) : base;
     }
+
+    /** En CS2 el AWP paga poco por eliminación: $100. */
+    @Override
+    public int recompensaPorEliminacion() {
+        return 100;
+    }
 }

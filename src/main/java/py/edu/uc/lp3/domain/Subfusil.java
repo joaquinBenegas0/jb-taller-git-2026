@@ -26,4 +26,10 @@ public class Subfusil extends ArmaDeFuego {
     public float obtenerControlRetroceso() {
         return controlRetroceso;
     }
+
+    /** Los subfusiles pagan más por eliminación: $600. */
+    @Override
+    public int recompensaPorEliminacion() {
+        return 600;
+    }
 }

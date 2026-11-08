@@ -2,6 +2,7 @@ package py.edu.uc.lp3.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import py.edu.uc.lp3exceptions.MunicionAgotadaException;
 
 /**
  * Concentra las reglas de munición: ninguna hija ni clase externa puede
@@ -69,14 +70,39 @@ public abstract class ArmaDeFuego extends Arma {
         if (distanciaMetros < 0f) {
             throw new IllegalArgumentException("La distancia no puede ser negativa");
         }
+        String detalle = " a " + distanciaMetros + " m";
+        if (distanciaMetros > alcanceEfectivo()) {
+            detalle += " (fuera del alcance efectivo de " + alcanceEfectivo() + " m)";
+        }
+        return efectuarDisparo(danioPorBalaA(distanciaMetros), detalle);
+    }
+
+    /**
+     * Regla 1 (munición) en la simulación: cada disparo gasta balas del cargador
+     * (las que indica balasPorDisparo, sin pasarse de las que quedan) y con el cargador
+     * vacío no se dispara. Devuelve el daño total que sale del arma.
+     */
+    @Override
+    final int impactar(float distanciaMetros) {
+        if (distanciaMetros < 0f) {
+            throw new IllegalArgumentException("La distancia no puede ser negativa");
+        }
+        if (municionCargador == 0) {
+            throw new MunicionAgotadaException(obtenerNombre(), municionReserva);
+        }
+        int balas = Math.min(balasPorDisparo(), municionCargador);
+        municionCargador -= balas;
+        return danioPorBalaA(distanciaMetros) * balas;
+    }
+
+    /** Más allá del alcance efectivo el daño por bala cae en proporción a la distancia. */
+    private int danioPorBalaA(float distanciaMetros) {
         float alcance = alcanceEfectivo();
         int danioPorBala = calcularDanioPorBala();
-        String detalle = " a " + distanciaMetros + " m";
         if (distanciaMetros > alcance) {
             danioPorBala = Math.round(danioPorBala * alcance / distanciaMetros);
-            detalle += " (fuera del alcance efectivo de " + alcance + " m)";
         }
-        return efectuarDisparo(danioPorBala, detalle);
+        return danioPorBala;
     }
 
     /** Único lugar donde se descuenta munición: lo usan las dos versiones de disparar. */

@@ -43,4 +43,10 @@ public class Escopeta extends ArmaDeFuego {
     protected int calcularDanioPorBala() {
         return super.calcularDanioPorBala() * numeroPerdigones;
     }
+
+    /** Las escopetas pagan más por eliminación: $900. */
+    @Override
+    public int recompensaPorEliminacion() {
+        return 900;
+    }
 }
