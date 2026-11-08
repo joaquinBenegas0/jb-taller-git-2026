@@ -4,7 +4,7 @@
 |---|---|
 | Asistente | Claude (Anthropic), en claude.ai |
 | Modelo LLM | Claude Opus 5.5 (`claude-opus-5-5`) |
-| Ejercicios | POO-04 (Taller de Git) y POO-06 (paquetes, constructores y sobrecarga) |
+| Ejercicios | POO-04 (Taller de Git), POO-06 (paquetes, constructores y sobrecarga) y POO-08 (CRUD REST, H2, reglas y excepciones) |
 
 ## Resumen de prompts
 
@@ -14,6 +14,14 @@
 4. Le pedí los dos controllers (`GET /` y construcción por URL) y después el método abstracto `usar()` con un inventario que no use `if` por tipo.
 5. Le pedí el diagrama Mermaid para el README y los pasos para configurar SSH en Windows.
 6. Para POO-06 le pasé el enunciado, la rúbrica y el template de paquetes, y le pedí reorganizar los paquetes, agregar constructores sobrecargados y sobrecargar `disparar` con una distancia.
+
+### POO-08
+
+7. Le pasé la consigna de POO-08 de Classroom (enunciado, rúbrica y template de paquetes) y le pedí que revise el estado de mi repositorio y arme la solución sobre mi modelado de CS2.
+8. Decidimos persistir la familia `Arma` en una sola tabla (`SINGLE_TABLE`), sumar `Jugador` e `Impacto`, y usar como reglas la munición (cada disparo gasta balas; con el cargador vacío no se dispara) y el daño con blindaje y recompensa por eliminación.
+9. Le pedí la jerarquía de excepciones (`Cs2Exception` con tres hijas) con un handler por tipo, la interfaz `Reportable` para armas y jugadores, el CRUD con PATCH y DELETE, y una partida inicial con ids fijos para poder probar.
+10. Le pedí la colección de Insomnia con todos los pedidos que exige el enunciado, pruebas unitarias de las dos reglas, el diagrama Mermaid y las respuestas de «Qué hay que pensar» para el README.
+11. El asistente compiló el código y corrió las reglas del dominio en su entorno, pero no pudo descargar las dependencias de Spring; el arranque con `./mvnw spring-boot:run` y el recorrido de Insomnia los verifiqué yo en mi VM.
 
 ## Cómo lo usé
 
