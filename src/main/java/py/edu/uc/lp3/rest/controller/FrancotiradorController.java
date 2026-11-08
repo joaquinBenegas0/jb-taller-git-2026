@@ -1,13 +1,8 @@
 package py.edu.uc.lp3.rest.controller;
 
-import java.util.Map;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import py.edu.uc.lp3.constants.ApiPaths;
@@ -17,11 +12,11 @@ import py.edu.uc.lp3.domain.Francotirador;
 /**
  * Construye un francotirador con los parámetros de la URL.
  * Los valores van directo a un constructor; el controller no valida ni corrige nada:
- * si un valor rompe una regla, la clase lo rechaza y aquí solo se informa.
+ * si un valor rompe una regla, la clase lo rechaza y ManejadorDeExcepciones responde 400.
  */
 @RestController
 @RequestMapping(ApiPaths.ARMAS)
-public class ArmaController {
+public class FrancotiradorController {
 
     public record FrancotiradorCreado(String arma, float precision, float zoom,
                                       int municionCargador, int municionReserva,
@@ -68,12 +63,5 @@ public class ArmaController {
         return new FrancotiradorCreado(arma.mostrarEnTienda(), precision, zoom,
                 arma.obtenerMunicionCargador(), arma.obtenerMunicionReserva(),
                 disparo, disparoConDistancia);
-    }
-
-    /** Si la clase rechaza los valores, se informa como 400 Bad Request. */
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> valoresRechazados(IllegalArgumentException e) {
-        return Map.of("error", e.getMessage());
     }
 }
