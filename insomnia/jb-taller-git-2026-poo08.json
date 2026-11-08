@@ -1,0 +1,659 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-08T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_jb_cs2",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "jb-taller-git-2026 · POO-08 CS2",
+      "description": "CRUD de armas, simulación de disparos y excepciones. Arrancar con ./mvnw spring-boot:run y recorrer las carpetas en orden.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_jb_cs2",
+      "_type": "environment",
+      "parentId": "wrk_jb_cs2",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "arma_creada_id": 8
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "arma_creada_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_0",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "0. Servicio vivo",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_index",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "GET / (servicio vivo)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 200,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_1",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "1. CRUD de armas",
+      "description": "Crear primero: en una base recién arrancada el POST devuelve id 8 (si devuelve otro, cambiá arma_creada_id en el entorno).",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 300
+    },
+    {
+      "_id": "req_listar",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Listar armas",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 400,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_listar_t",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Listar armas de los terroristas (consulta del repositorio)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas?equipo=TERRORISTAS",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 500,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_crear",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Crear rifle M4A4 (201, devuelve id)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 600,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"rifle\",\n  \"nombre\": \"M4A4\",\n  \"precio\": 3100,\n  \"equipo\": \"ANTITERRORISTAS\"\n}"
+      }
+    },
+    {
+      "_id": "req_ver",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Ver el arma creada",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas/{{ _.arma_creada_id }}",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 700,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_patch",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Actualizar precio (PATCH)",
+      "description": "",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/api/armas/{{ _.arma_creada_id }}",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 800,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"precio\": 2900\n}"
+      }
+    },
+    {
+      "_id": "req_ver2",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Ver que el precio quedó guardado",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas/{{ _.arma_creada_id }}",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 900,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_crear_granada",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Crear granada táctica (constructor sobrecargado por efecto)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1000,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"granada\",\n  \"nombre\": \"Flashbang\",\n  \"precio\": 200,\n  \"equipo\": \"ANTITERRORISTAS\",\n  \"efecto\": \"ceguera temporal\"\n}"
+      }
+    },
+    {
+      "_id": "req_borrar",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Borrar el arma creada (204)",
+      "description": "",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/armas/{{ _.arma_creada_id }}",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1100,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_ver_borrada",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Ver el arma borrada (404)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas/{{ _.arma_creada_id }}",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1200,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_2",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "2. POST ilegal e id inexistente",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1300
+    },
+    {
+      "_id": "req_post_ilegal",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "POST ilegal: precio negativo (400)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1400,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"pistola\",\n  \"nombre\": \"Glock trucha\",\n  \"precio\": -5,\n  \"equipo\": \"TERRORISTAS\"\n}"
+      }
+    },
+    {
+      "_id": "req_post_cargador",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "POST ilegal: cargador vacío de fábrica (400)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"subfusil\",\n  \"nombre\": \"MP7\",\n  \"precio\": 1500,\n  \"equipo\": \"ANTITERRORISTAS\",\n  \"danio\": 29,\n  \"precision\": 0.7,\n  \"capacidadCargador\": 0,\n  \"municionReserva\": 120,\n  \"tiempoRecarga\": 3.1,\n  \"controlRetroceso\": 0.6\n}"
+      }
+    },
+    {
+      "_id": "req_post_tipo",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "POST ilegal: tipo desconocido (400)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1600,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"bazuca\",\n  \"nombre\": \"RPG\",\n  \"precio\": 5000,\n  \"equipo\": \"TERRORISTAS\"\n}"
+      }
+    },
+    {
+      "_id": "req_contar",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Listar armas: la colección no creció",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1700,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_get_999",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "GET id inexistente (404)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas/999",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1800,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_delete_999",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "DELETE id inexistente (404)",
+      "description": "",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/armas/999",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1900,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_3",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "3. Interfaz Reportable",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2000
+    },
+    {
+      "_id": "req_reportes",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "Reportes de armas y jugadores (Reportable)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/reportes",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2100,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_4",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "4. Jugadores",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2200
+    },
+    {
+      "_id": "req_jugadores",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Listar jugadores",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/jugadores",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2300,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_jugador_nuevo",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Crear jugador con MP9",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/jugadores",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2400,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nombre\": \"Zorro\",\n  \"equipo\": \"ANTITERRORISTAS\",\n  \"blindaje\": 50,\n  \"armaId\": 5\n}"
+      }
+    },
+    {
+      "_id": "req_jugador_ilegal",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "POST ilegal: blindaje 150 (400)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/jugadores",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nombre\": \"Tanque\",\n  \"equipo\": \"TERRORISTAS\",\n  \"blindaje\": 150\n}"
+      }
+    },
+    {
+      "_id": "fld_5",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "5. Simulación (caso feliz)",
+      "description": "Sombra (T, AK-47) le dispara a Halcón (CT, blindaje 100).",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2600
+    },
+    {
+      "_id": "req_sim1",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Sombra dispara a Halcón a 20 m (201)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2700,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 1,\n  \"objetivoId\": 2,\n  \"distancia\": 20\n}"
+      }
+    },
+    {
+      "_id": "req_halcon",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Ver Halcón: vida 10, blindaje 10",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/jugadores/2",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2800,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_ak",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Ver AK-47: cargador 25",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/armas/1",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2900,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_sim2",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Segundo disparo: Halcón eliminado, Sombra cobra $300",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3000,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 1,\n  \"objetivoId\": 2,\n  \"distancia\": 20\n}"
+      }
+    },
+    {
+      "_id": "req_sombra",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Ver Sombra: dinero 1100",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/jugadores/1",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3100,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_historial",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Historial de disparos persistido",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3200,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_6",
+      "_type": "request_group",
+      "parentId": "wrk_jb_cs2",
+      "name": "6. Una excepción de cada tipo",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 3300
+    },
+    {
+      "_id": "req_ex_404",
+      "_type": "request",
+      "parentId": "fld_6",
+      "name": "RecursoNoEncontradoException: tirador 999 (404)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3400,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 999,\n  \"objetivoId\": 2,\n  \"distancia\": 10\n}"
+      }
+    },
+    {
+      "_id": "req_ex_lince1",
+      "_type": "request",
+      "parentId": "fld_6",
+      "name": "Lince gasta su única bala (201)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3500,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 3,\n  \"objetivoId\": 1,\n  \"distancia\": 10\n}"
+      }
+    },
+    {
+      "_id": "req_ex_409",
+      "_type": "request",
+      "parentId": "fld_6",
+      "name": "MunicionAgotadaException: Lince sin balas (409)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3600,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 3,\n  \"objetivoId\": 1,\n  \"distancia\": 10\n}"
+      }
+    },
+    {
+      "_id": "req_ex_422",
+      "_type": "request",
+      "parentId": "fld_6",
+      "name": "DisparoNoPermitidoException: fuego amigo (422)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3700,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 1,\n  \"objetivoId\": 4,\n  \"distancia\": 10\n}"
+      }
+    },
+    {
+      "_id": "req_ex_422b",
+      "_type": "request",
+      "parentId": "fld_6",
+      "name": "DisparoNoPermitidoException: con una granada (422)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/simulaciones/disparos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3800,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 4,\n  \"objetivoId\": 3,\n  \"distancia\": 10\n}"
+      }
+    }
+  ]
+}
