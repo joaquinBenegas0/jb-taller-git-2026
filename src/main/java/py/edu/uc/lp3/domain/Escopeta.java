@@ -1,9 +1,18 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("escopeta")
 public class Escopeta extends ArmaDeFuego {
 
-    private final int numeroPerdigones;
-    private final float distanciaEfectiva;
+    private int numeroPerdigones;
+    private float distanciaEfectiva;
+
+    /** Solo para JPA. */
+    protected Escopeta() {
+    }
 
     public Escopeta(String nombre, int precio, Equipo equipo, int danio, float precision,
                     int capacidadCargador, int municionReserva, float tiempoRecarga,

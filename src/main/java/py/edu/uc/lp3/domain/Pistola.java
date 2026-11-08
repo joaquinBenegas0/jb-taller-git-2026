@@ -1,8 +1,17 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("pistola")
 public class Pistola extends ArmaDeFuego {
 
     private boolean modoRafaga;
+
+    /** Solo para JPA. */
+    protected Pistola() {
+    }
 
     /** Constructor simple: pistola con valores estándar (tipo Glock-18). */
     public Pistola(String nombre, int precio, Equipo equipo) {

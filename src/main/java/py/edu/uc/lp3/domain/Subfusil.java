@@ -1,8 +1,17 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("subfusil")
 public class Subfusil extends ArmaDeFuego {
 
-    private final float controlRetroceso;
+    private float controlRetroceso;
+
+    /** Solo para JPA. */
+    protected Subfusil() {
+    }
 
     public Subfusil(String nombre, int precio, Equipo equipo, int danio, float precision,
                     int capacidadCargador, int municionReserva, float tiempoRecarga,

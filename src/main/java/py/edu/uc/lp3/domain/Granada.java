@@ -1,19 +1,33 @@
 package py.edu.uc.lp3.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
 /**
  * Arma arrojadiza: no tiene munición, pero sí un ciclo de vida
  * (disponible -> lanzada -> detonada) que nadie de afuera puede saltarse.
  */
+@Entity
+@DiscriminatorValue("granada")
 public class Granada extends Arma {
 
-    private final int danio;
-    private final float radioExplosion;
-    private final float tiempoActivacion;
-    private final boolean esLetal;
-    private final String efecto;
+    @Column(name = "danio_explosion")
+    private int danio;
+    private float radioExplosion;
+    private float tiempoActivacion;
+    private boolean esLetal;
+    private String efecto;
     private boolean lanzada;
     private boolean detonada;
+    @JsonIgnore
     private long momentoLanzamiento;
+
+    /** Solo para JPA. */
+    protected Granada() {
+    }
 
     /** Sobrecarga para granadas explosivas (letales): solo se indica el daño. */
     public Granada(String nombre, int precio, Equipo equipo, int danio) {

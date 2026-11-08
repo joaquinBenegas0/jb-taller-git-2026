@@ -1,10 +1,19 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("francotirador")
 public class Francotirador extends ArmaDeFuego {
 
-    private final float zoom;
-    private final float penetracion;
+    private float zoom;
+    private float penetracion;
     private boolean zoomActivo;
+
+    /** Solo para JPA. */
+    protected Francotirador() {
+    }
 
     /** Constructor simple: francotirador estándar (valores del AWP) para los antiterroristas. */
     public Francotirador(String nombre, int precio) {

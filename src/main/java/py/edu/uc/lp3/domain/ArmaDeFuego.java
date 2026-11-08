@@ -1,18 +1,27 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+
 /**
  * Concentra las reglas de munición: ninguna hija ni clase externa puede
  * tocar los contadores directamente. Las hijas solo especializan
  * cuántas balas gasta un disparo y cuánto daño hace cada bala.
  */
+@Entity
 public abstract class ArmaDeFuego extends Arma {
 
-    private final int danio;
-    private final float precision;
-    private final int capacidadCargador;
-    private final float tiempoRecarga;
+    private int danio;
+    @Column(name = "precision_disparo")
+    private float precision;
+    private int capacidadCargador;
+    private float tiempoRecarga;
     private int municionCargador;
     private int municionReserva;
+
+    /** Solo para JPA. */
+    protected ArmaDeFuego() {
+    }
 
     protected ArmaDeFuego(String nombre, int precio, Equipo equipo,
                           int danio, float precision, int capacidadCargador,
@@ -111,6 +120,20 @@ public abstract class ArmaDeFuego extends Arma {
     /** Daño base por bala. Francotirador y escopeta lo redefinen partiendo de este valor. */
     protected int calcularDanioPorBala() {
         return danio;
+    }
+
+    /** El reporte de un arma de fuego suma el estado de su munición. */
+    @Override
+    public String reporteDeCombate() {
+        return super.reporteDeCombate() + " | munición " + municionCargador + "/" + municionReserva;
+    }
+
+    public int obtenerDanio() {
+        return danio;
+    }
+
+    public int obtenerCapacidadCargador() {
+        return capacidadCargador;
     }
 
     public float obtenerPrecision() {

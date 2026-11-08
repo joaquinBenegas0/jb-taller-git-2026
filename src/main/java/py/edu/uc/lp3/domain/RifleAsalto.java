@@ -1,9 +1,21 @@
 package py.edu.uc.lp3.domain;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
+@Entity
+@DiscriminatorValue("rifle")
 public class RifleAsalto extends ArmaDeFuego {
 
+    @Enumerated(EnumType.STRING)
     private ModoDisparo modoDisparo;
-    private final float cadenciaDisparo;
+    private float cadenciaDisparo;
+
+    /** Solo para JPA. */
+    protected RifleAsalto() {
+    }
 
     /** Constructor simple: rifle con valores estándar (tipo AK-47). */
     public RifleAsalto(String nombre, int precio, Equipo equipo) {
