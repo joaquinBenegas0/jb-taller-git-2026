@@ -38,7 +38,7 @@ public class Pistola extends ArmaDeFuego {
     }
 
     @Override
-    protected int balasPorDisparo() {
+    public int balasPorDisparo() {
         return modoRafaga ? 3 : 1;
     }
 }

@@ -22,22 +22,16 @@ public class RifleAsalto extends ArmaDeFuego {
         this(nombre, precio, equipo, 36, 0.73f, 30, 90, 2.5f, 10f);
     }
 
-    /** Constructor completo: llama a super y valida la cadencia. */
+    /** Constructor completo: llama a super; la cadencia la valida ValidadorDeArmas. */
     public RifleAsalto(String nombre, int precio, Equipo equipo, int danio, float precision,
                        int capacidadCargador, int municionReserva, float tiempoRecarga,
                        float cadenciaDisparo) {
         super(nombre, precio, equipo, danio, precision, capacidadCargador, municionReserva, tiempoRecarga);
-        if (cadenciaDisparo <= 0f) {
-            throw new IllegalArgumentException("La cadencia debe ser mayor a 0");
-        }
         this.cadenciaDisparo = cadenciaDisparo;
         this.modoDisparo = ModoDisparo.AUTOMATICO;
     }
 
     public void cambiarModo(ModoDisparo nuevoModo) {
-        if (nuevoModo == null) {
-            throw new IllegalArgumentException("El modo de disparo no puede ser nulo");
-        }
         this.modoDisparo = nuevoModo;
     }
 
@@ -50,7 +44,7 @@ public class RifleAsalto extends ArmaDeFuego {
     }
 
     @Override
-    protected int balasPorDisparo() {
+    public int balasPorDisparo() {
         return modoDisparo.balasPorDisparo();
     }
 }

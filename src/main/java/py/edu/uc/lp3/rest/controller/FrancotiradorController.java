@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import py.edu.uc.lp3.constants.ApiPaths;
 import py.edu.uc.lp3.domain.Equipo;
 import py.edu.uc.lp3.domain.Francotirador;
+import py.edu.uc.lp3.service.ArmaService;
 
 /**
  * Construye un francotirador con los parámetros de la URL.
@@ -17,6 +18,12 @@ import py.edu.uc.lp3.domain.Francotirador;
 @RestController
 @RequestMapping(ApiPaths.ARMAS)
 public class FrancotiradorController {
+
+    private final ArmaService armas;
+
+    public FrancotiradorController(ArmaService armas) {
+        this.armas = armas;
+    }
 
     public record FrancotiradorCreado(String arma, float precision, float zoom,
                                       int municionCargador, int municionReserva,
@@ -56,12 +63,9 @@ public class FrancotiradorController {
     }
 
     private FrancotiradorCreado probar(Francotirador arma, float distancia) {
-        float precision = arma.obtenerPrecision();
-        float zoom = arma.obtenerZoom();
-        String disparo = arma.disparar();
-        String disparoConDistancia = arma.disparar(distancia);
-        return new FrancotiradorCreado(arma.mostrarEnTienda(), precision, zoom,
+        ArmaService.PruebaDeFrancotirador prueba = armas.probar(arma, distancia);
+        return new FrancotiradorCreado(arma.mostrarEnTienda(), arma.obtenerPrecision(), arma.obtenerZoom(),
                 arma.obtenerMunicionCargador(), arma.obtenerMunicionReserva(),
-                disparo, disparoConDistancia);
+                prueba.disparo(), prueba.disparoConDistancia());
     }
 }

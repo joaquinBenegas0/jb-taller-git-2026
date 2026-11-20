@@ -7,8 +7,8 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 /**
- * Arma arrojadiza: no tiene munición, pero sí un ciclo de vida
- * (disponible -> lanzada -> detonada) que nadie de afuera puede saltarse.
+ * Arma arrojadiza: no tiene munición, pero sí un ciclo de vida (disponible -> lanzada -> detonada).
+ * La entidad guarda en qué paso está; el ciclo lo controla ArmaService.
  */
 @Entity
 @DiscriminatorValue("granada")
@@ -39,25 +39,10 @@ public class Granada extends Arma {
         this(nombre, precio, equipo, 0, 6f, 1.5f, false, efecto);
     }
 
-    /** Constructor completo: llama a super y valida que la letalidad coincida con el daño. */
+    /** Constructor completo: llama a super. Letalidad, radio y efecto los valida ValidadorDeArmas. */
     public Granada(String nombre, int precio, Equipo equipo, int danio, float radioExplosion,
                    float tiempoActivacion, boolean esLetal, String efecto) {
         super(nombre, precio, equipo);
-        if (esLetal && danio <= 0) {
-            throw new IllegalArgumentException("Una granada letal debe hacer daño");
-        }
-        if (!esLetal && danio != 0) {
-            throw new IllegalArgumentException("Una granada no letal no hace daño");
-        }
-        if (radioExplosion <= 0f) {
-            throw new IllegalArgumentException("El radio de explosión debe ser mayor a 0");
-        }
-        if (tiempoActivacion < 0f) {
-            throw new IllegalArgumentException("El tiempo de activación no puede ser negativo");
-        }
-        if (efecto == null || efecto.isBlank()) {
-            throw new IllegalArgumentException("La granada debe tener un efecto");
-        }
         this.danio = danio;
         this.radioExplosion = radioExplosion;
         this.tiempoActivacion = tiempoActivacion;
@@ -65,36 +50,46 @@ public class Granada extends Arma {
         this.efecto = efecto;
     }
 
-    /** Usar una granada es lanzarla. */
+    /** Una granada se usa lanzándola. Solo describe; lanzar y detonar los hace ArmaService. */
     @Override
     public String usar() {
-        return lanzar();
+        return obtenerNombre() + " se lanza y detona a los " + tiempoActivacion + " s en un radio de "
+                + radioExplosion + " m: " + efecto + (esLetal ? " (" + danio + " de daño)" : "");
     }
 
-    public String lanzar() {
-        if (lanzada) {
-            return obtenerNombre() + ": ya fue lanzada";
-        }
-        lanzada = true;
-        momentoLanzamiento = System.currentTimeMillis();
-        return obtenerNombre() + " lanzada, detona en " + tiempoActivacion + " s";
+    /** Lo llama ArmaService al lanzarla. */
+    public void marcarLanzada(long momento) {
+        this.lanzada = true;
+        this.momentoLanzamiento = momento;
     }
 
-    /** El cooldown (tiempo de activación) lo controla la propia granada. */
-    public String detonar() {
-        if (!lanzada) {
-            return obtenerNombre() + ": no se puede detonar sin lanzarla";
-        }
-        if (detonada) {
-            return obtenerNombre() + ": ya detonó";
-        }
-        long transcurrido = System.currentTimeMillis() - momentoLanzamiento;
-        if (transcurrido < tiempoActivacion * 1000) {
-            return obtenerNombre() + ": todavía no se activó";
-        }
-        detonada = true;
-        String resultado = obtenerNombre() + " detona en un radio de " + radioExplosion + " m: " + efecto;
-        return esLetal ? resultado + " (" + danio + " de daño)" : resultado;
+    /** Lo llama ArmaService cuando ya pasó el tiempo de activación. */
+    public void marcarDetonada() {
+        this.detonada = true;
+    }
+
+    public int obtenerDanio() {
+        return danio;
+    }
+
+    public float obtenerRadioExplosion() {
+        return radioExplosion;
+    }
+
+    public float obtenerTiempoActivacion() {
+        return tiempoActivacion;
+    }
+
+    public boolean esLetal() {
+        return esLetal;
+    }
+
+    public String obtenerEfecto() {
+        return efecto;
+    }
+
+    public long obtenerMomentoLanzamiento() {
+        return momentoLanzamiento;
     }
 
     public boolean fueLanzada() {

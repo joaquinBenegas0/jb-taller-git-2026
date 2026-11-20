@@ -28,7 +28,7 @@ import py.edu.uc.lp3.domain.Subfusil;
 })
 public sealed interface NuevaArma {
 
-    /** Construye el arma del dominio; las reglas de construcción las valida el constructor. */
+    /** Construye el arma del dominio; los invariantes los valida ArmaService antes de guardar. */
     Arma crear();
 
     record NuevaPistola(String nombre, int precio, Equipo equipo, Integer danio, Float precision,

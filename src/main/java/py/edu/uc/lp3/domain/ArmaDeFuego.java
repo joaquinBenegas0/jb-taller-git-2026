@@ -2,15 +2,17 @@ package py.edu.uc.lp3.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import py.edu.uc.lp3exceptions.MunicionAgotadaException;
 
 /**
- * Concentra las reglas de munición: ninguna hija ni clase externa puede
- * tocar los contadores directamente. Las hijas solo especializan
- * cuántas balas gasta un disparo y cuánto daño hace cada bala.
+ * Arma con cargador. Guarda daño, precisión y munición; las hijas solo especializan
+ * cuántas balas gasta un disparo, el alcance y el daño por bala.
+ * Disparar y recargar (las reglas que cambian la munición) los hace ArmaService.
  */
 @Entity
 public abstract class ArmaDeFuego extends Arma {
+
+    /** Más allá de este alcance (en metros) el daño por bala cae en proporción a la distancia. */
+    protected static final float ALCANCE_ESTANDAR = 50f;
 
     private int danio;
     @Column(name = "precision_disparo")
@@ -28,21 +30,6 @@ public abstract class ArmaDeFuego extends Arma {
                           int danio, float precision, int capacidadCargador,
                           int municionReserva, float tiempoRecarga) {
         super(nombre, precio, equipo);
-        if (danio <= 0) {
-            throw new IllegalArgumentException("El daño debe ser mayor a 0");
-        }
-        if (precision < 0f || precision > 1f) {
-            throw new IllegalArgumentException("La precisión va de 0 a 1");
-        }
-        if (capacidadCargador <= 0) {
-            throw new IllegalArgumentException("El cargador debe tener capacidad");
-        }
-        if (municionReserva < 0) {
-            throw new IllegalArgumentException("La reserva no puede ser negativa");
-        }
-        if (tiempoRecarga <= 0f) {
-            throw new IllegalArgumentException("El tiempo de recarga debe ser mayor a 0");
-        }
         this.danio = danio;
         this.precision = precision;
         this.capacidadCargador = capacidadCargador;
@@ -51,100 +38,31 @@ public abstract class ArmaDeFuego extends Arma {
         this.municionReserva = municionReserva;
     }
 
-    /** Usar un arma de fuego es disparar; final para que ninguna hija cambie esa regla. */
+    /** Un arma de fuego se usa disparándola; final para que ninguna hija cambie esa forma de uso. */
     @Override
     public final String usar() {
-        return disparar();
+        return obtenerNombre() + " se dispara: " + balasPorDisparo() + " bala(s) por disparo de "
+                + calcularDanioPorBala() + " de daño, alcance efectivo " + alcanceEfectivo() + " m";
     }
 
-    /** final: ninguna hija puede saltarse el control de munición. */
-    public final String disparar() {
-        return efectuarDisparo(calcularDanioPorBala(), "");
-    }
-
-    /**
-     * Sobrecarga: la misma acción indicando la distancia al objetivo, en metros.
-     * Más allá del alcance efectivo el daño cae en proporción a la distancia.
-     */
-    public final String disparar(float distanciaMetros) {
-        if (distanciaMetros < 0f) {
-            throw new IllegalArgumentException("La distancia no puede ser negativa");
-        }
-        String detalle = " a " + distanciaMetros + " m";
-        if (distanciaMetros > alcanceEfectivo()) {
-            detalle += " (fuera del alcance efectivo de " + alcanceEfectivo() + " m)";
-        }
-        return efectuarDisparo(danioPorBalaA(distanciaMetros), detalle);
-    }
-
-    /**
-     * Regla 1 (munición) en la simulación: cada disparo gasta balas del cargador
-     * (las que indica balasPorDisparo, sin pasarse de las que quedan) y con el cargador
-     * vacío no se dispara. Devuelve el daño total que sale del arma.
-     */
-    @Override
-    final int impactar(float distanciaMetros) {
-        if (distanciaMetros < 0f) {
-            throw new IllegalArgumentException("La distancia no puede ser negativa");
-        }
-        if (municionCargador == 0) {
-            throw new MunicionAgotadaException(obtenerNombre(), municionReserva);
-        }
-        int balas = Math.min(balasPorDisparo(), municionCargador);
-        municionCargador -= balas;
-        return danioPorBalaA(distanciaMetros) * balas;
-    }
-
-    /** Más allá del alcance efectivo el daño por bala cae en proporción a la distancia. */
-    private int danioPorBalaA(float distanciaMetros) {
-        float alcance = alcanceEfectivo();
-        int danioPorBala = calcularDanioPorBala();
-        if (distanciaMetros > alcance) {
-            danioPorBala = Math.round(danioPorBala * alcance / distanciaMetros);
-        }
-        return danioPorBala;
-    }
-
-    /** Único lugar donde se descuenta munición: lo usan las dos versiones de disparar. */
-    private String efectuarDisparo(int danioPorBala, String detalle) {
-        if (municionCargador == 0) {
-            return obtenerNombre() + ": click... cargador vacío, hay que recargar";
-        }
-        int balas = Math.min(balasPorDisparo(), municionCargador);
-        municionCargador -= balas;
-        int danioTotal = danioPorBala * balas;
-        return obtenerNombre() + " dispara " + balas + " bala(s)" + detalle + ": " + danioTotal
-                + " de daño [" + municionCargador + "/" + municionReserva + "]";
-    }
-
-    /** final: la recarga mueve balas de la reserva al cargador sin pasarse de la capacidad. */
-    public final String recargar() {
-        int faltan = capacidadCargador - municionCargador;
-        if (faltan == 0) {
-            return obtenerNombre() + ": el cargador ya está lleno";
-        }
-        if (municionReserva == 0) {
-            return obtenerNombre() + ": no queda munición de reserva";
-        }
-        int cargadas = Math.min(faltan, municionReserva);
-        municionReserva -= cargadas;
-        municionCargador += cargadas;
-        return obtenerNombre() + " recarga " + cargadas + " bala(s) en " + tiempoRecarga
-                + " s [" + municionCargador + "/" + municionReserva + "]";
+    /** Lo llama ArmaService al disparar o recargar, después de aplicar la regla de munición. */
+    public void actualizarMunicion(int cargador, int reserva) {
+        this.municionCargador = cargador;
+        this.municionReserva = reserva;
     }
 
     /** Por defecto un disparo gasta una bala. Pistola y rifle lo redefinen. */
-    protected int balasPorDisparo() {
+    public int balasPorDisparo() {
         return 1;
     }
 
     /** Alcance efectivo en metros. Escopeta y francotirador lo redefinen. */
-    protected float alcanceEfectivo() {
-        return 50f;
+    public float alcanceEfectivo() {
+        return ALCANCE_ESTANDAR;
     }
 
     /** Daño base por bala. Francotirador y escopeta lo redefinen partiendo de este valor. */
-    protected int calcularDanioPorBala() {
+    public int calcularDanioPorBala() {
         return danio;
     }
 
@@ -164,6 +82,10 @@ public abstract class ArmaDeFuego extends Arma {
 
     public float obtenerPrecision() {
         return precision;
+    }
+
+    public float obtenerTiempoRecarga() {
+        return tiempoRecarga;
     }
 
     public int obtenerMunicionCargador() {

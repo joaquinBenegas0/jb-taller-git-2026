@@ -17,9 +17,6 @@ public class Subfusil extends ArmaDeFuego {
                     int capacidadCargador, int municionReserva, float tiempoRecarga,
                     float controlRetroceso) {
         super(nombre, precio, equipo, danio, precision, capacidadCargador, municionReserva, tiempoRecarga);
-        if (controlRetroceso < 0f || controlRetroceso > 1f) {
-            throw new IllegalArgumentException("El control de retroceso va de 0 a 1");
-        }
         this.controlRetroceso = controlRetroceso;
     }
 

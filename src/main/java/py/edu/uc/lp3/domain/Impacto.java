@@ -10,7 +10,7 @@ import jakarta.persistence.Id;
 
 /**
  * Registro persistido de un disparo simulado: quién, a quién, con qué y qué pasó.
- * Solo lo crea Jugador.dispararA (constructor de paquete) y no tiene mensajes que lo modifiquen.
+ * Lo crea SimulacionService con el resultado ya calculado; no tiene mensajes que lo modifiquen.
  * Guarda ids y nombres (no relaciones) para que el historial sobreviva aunque se borre un arma.
  */
 @Entity
@@ -41,7 +41,7 @@ public class Impacto {
     protected Impacto() {
     }
 
-    Impacto(Jugador tirador, Jugador objetivo, Arma arma, float distancia, int danioDelArma,
+    public Impacto(Jugador tirador, Jugador objetivo, Arma arma, float distancia, int danioDelArma,
             int absorbidoPorBlindaje, int danioALaVida, int recompensaCobrada) {
         this.tiradorId = tirador.obtenerId();
         this.tirador = tirador.obtenerNombre();

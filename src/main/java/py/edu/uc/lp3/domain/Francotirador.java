@@ -25,17 +25,11 @@ public class Francotirador extends ArmaDeFuego {
         this(nombre, precio, equipo, 115, 0.95f, 5, 30, 3.6f, 4f, 0.5f);
     }
 
-    /** Constructor completo: todos los valores; llama a super y valida zoom y penetración. */
+    /** Constructor completo: todos los valores; llama a super. Zoom y penetración los valida ValidadorDeArmas. */
     public Francotirador(String nombre, int precio, Equipo equipo, int danio, float precision,
                          int capacidadCargador, int municionReserva, float tiempoRecarga,
                          float zoom, float penetracion) {
         super(nombre, precio, equipo, danio, precision, capacidadCargador, municionReserva, tiempoRecarga);
-        if (zoom < 1f) {
-            throw new IllegalArgumentException("El zoom debe ser al menos 1x");
-        }
-        if (penetracion < 0f || penetracion > 1f) {
-            throw new IllegalArgumentException("La penetración va de 0 a 1");
-        }
         this.zoom = zoom;
         this.penetracion = penetracion;
         this.zoomActivo = false;
@@ -57,15 +51,19 @@ public class Francotirador extends ArmaDeFuego {
         return zoom;
     }
 
+    public float obtenerPenetracion() {
+        return penetracion;
+    }
+
     /** La mira multiplica el alcance efectivo del arma. */
     @Override
-    protected float alcanceEfectivo() {
+    public float alcanceEfectivo() {
         return super.alcanceEfectivo() * zoom;
     }
 
     /** Con el zoom activo la bala aprovecha la penetración. Parte del daño base del padre. */
     @Override
-    protected int calcularDanioPorBala() {
+    public int calcularDanioPorBala() {
         int base = super.calcularDanioPorBala();
         return zoomActivo ? Math.round(base * (1f + penetracion)) : base;
     }

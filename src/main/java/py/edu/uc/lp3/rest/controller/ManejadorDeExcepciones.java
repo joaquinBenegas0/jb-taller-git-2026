@@ -10,6 +10,7 @@ import py.edu.uc.lp3exceptions.Cs2Exception;
 import py.edu.uc.lp3exceptions.DisparoNoPermitidoException;
 import py.edu.uc.lp3exceptions.MunicionAgotadaException;
 import py.edu.uc.lp3exceptions.RecursoNoEncontradoException;
+import py.edu.uc.lp3exceptions.ValorIlegalException;
 
 /**
  * Traduce excepciones a HTTP: un handler por tipo, cada uno con su código de estado.
@@ -42,7 +43,14 @@ public class ManejadorDeExcepciones {
         return deDominio(HttpStatus.UNPROCESSABLE_ENTITY, e);
     }
 
-    /** Invariante de construcción roto (precio 0, blindaje 150...): el objeto nunca llegó a existir. */
+    /** Un service rechazó un dato que rompe un invariante (precio 0, blindaje 150...): no se guardó nada. */
+    @ExceptionHandler(ValorIlegalException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorRespuesta valorIlegalDelJuego(ValorIlegalException e) {
+        return deDominio(HttpStatus.BAD_REQUEST, e);
+    }
+
+    /** Falta un campo obligatorio en el JSON (lo detectan los records de rest.dto). */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorRespuesta valorIlegal(IllegalArgumentException e) {

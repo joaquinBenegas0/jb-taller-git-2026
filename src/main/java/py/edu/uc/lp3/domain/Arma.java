@@ -14,14 +14,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import py.edu.uc.lp3exceptions.DisparoNoPermitidoException;
 
 /**
  * Raíz de la jerarquía: todo lo que se puede comprar en la tienda.
  * Toda la familia se guarda en una sola tabla (ARMA); la columna TIPO dice qué hija es cada fila.
  * En el JSON el subtipo viaja en la propiedad "tipo".
- * No hay setters: JPA lee y escribe los campos directamente (acceso por campo)
- * y el resto del sistema solo cambia el estado con mensajes que validan.
+ * Es una entidad: solo guarda estado. Las validaciones y las reglas del juego viven en la capa
+ * service (ValidadorDeArmas, ArmaService, ReglaDeMunicion, ReglaDeDanio); acá no se lanza ninguna excepción.
  */
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -57,20 +56,14 @@ public abstract class Arma implements Reportable {
     }
 
     protected Arma(String nombre, int precio, Equipo equipo) {
-        validarNombre(nombre);
-        validarPrecio(precio);
-        if (equipo == null) {
-            throw new IllegalArgumentException("El arma debe pertenecer a un equipo");
-        }
         this.nombre = nombre;
         this.precio = precio;
         this.equipo = equipo;
     }
 
     /**
-     * Mensaje común a todas las armas: "usate".
-     * El padre no puede implementarlo porque cada tipo se usa distinto:
-     * un arma de fuego dispara (y controla su munición), una granada se lanza (y controla su activación).
+     * Mensaje común a todas las armas: cómo se usa. El padre no puede responderlo porque cada tipo
+     * se usa distinto: un arma de fuego se dispara, una granada se lanza. Solo describe, no cambia estado.
      */
     public abstract String usar();
 
@@ -79,28 +72,17 @@ public abstract class Arma implements Reportable {
         return nombre + " - $" + precio + " (" + equipo + ")";
     }
 
-    /** La tienda puede renombrar un arma, con la misma regla que al construirla. */
+    /** Lo llama ArmaService después de validar el nombre. */
     public void renombrar(String nuevoNombre) {
-        validarNombre(nuevoNombre);
         this.nombre = nuevoNombre;
     }
 
-    /** La tienda puede cambiar el precio, con la misma regla que al construirla. */
+    /** Lo llama ArmaService después de validar el precio. */
     public void cambiarPrecio(int nuevoPrecio) {
-        validarPrecio(nuevoPrecio);
         this.precio = nuevoPrecio;
     }
 
-    /**
-     * Regla 1 de la simulación: disparar contra un objetivo a cierta distancia y devolver el daño.
-     * Por defecto un arma no dispara (una granada se lanza); ArmaDeFuego lo redefine.
-     * Visibilidad de paquete: solo Jugador, dentro del dominio, puede pedirlo.
-     */
-    int impactar(float distanciaMetros) {
-        throw new DisparoNoPermitidoException(nombre + " no es un arma de fuego: no se puede disparar con ella");
-    }
-
-    /** Dinero que cobra el tirador cuando elimina a alguien con esta arma. */
+    /** Dato del tipo de arma: lo que cobra el tirador cuando elimina a alguien con ella. */
     public int recompensaPorEliminacion() {
         return RECOMPENSA_ESTANDAR;
     }
@@ -134,17 +116,5 @@ public abstract class Arma implements Reportable {
     @Override
     public String toString() {
         return mostrarEnTienda();
-    }
-
-    private static void validarNombre(String nombre) {
-        if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("El arma necesita un nombre");
-        }
-    }
-
-    private static void validarPrecio(int precio) {
-        if (precio <= 0) {
-            throw new IllegalArgumentException("El precio debe ser mayor a 0");
-        }
     }
 }

@@ -18,14 +18,12 @@ public class Escopeta extends ArmaDeFuego {
                     int capacidadCargador, int municionReserva, float tiempoRecarga,
                     int numeroPerdigones, float distanciaEfectiva) {
         super(nombre, precio, equipo, danio, precision, capacidadCargador, municionReserva, tiempoRecarga);
-        if (numeroPerdigones <= 0) {
-            throw new IllegalArgumentException("Debe disparar al menos un perdigón");
-        }
-        if (distanciaEfectiva <= 0f) {
-            throw new IllegalArgumentException("La distancia efectiva debe ser mayor a 0");
-        }
         this.numeroPerdigones = numeroPerdigones;
         this.distanciaEfectiva = distanciaEfectiva;
+    }
+
+    public int obtenerNumeroPerdigones() {
+        return numeroPerdigones;
     }
 
     public float obtenerDistanciaEfectiva() {
@@ -34,13 +32,13 @@ public class Escopeta extends ArmaDeFuego {
 
     /** La escopeta solo es efectiva a corta distancia. */
     @Override
-    protected float alcanceEfectivo() {
+    public float alcanceEfectivo() {
         return distanciaEfectiva;
     }
 
     /** Cada cartucho reparte el daño base en varios perdigones. */
     @Override
-    protected int calcularDanioPorBala() {
+    public int calcularDanioPorBala() {
         return super.calcularDanioPorBala() * numeroPerdigones;
     }
 
