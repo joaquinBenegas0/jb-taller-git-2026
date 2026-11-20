@@ -34,8 +34,12 @@ public class IndexController {
                         "GET /api/jugadores/{id}",
                         "GET /api/reportes",
                         "GET | POST /api/simulaciones/disparos",
+                        "POST /api/reglas/municion",
+                        "POST /api/reglas/danio",
                         "GET /api/armas/inventario",
                         "GET /api/armas/francotirador?nombre=AWP&precio=4750&distancia=300",
-                        "GET /h2-console"));
+                        "GET /h2-console",
+                        "GET /v3/api-docs",
+                        "GET /swagger-ui.html"));
     }
 }

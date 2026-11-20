@@ -2,6 +2,7 @@ package py.edu.uc.lp3.service;
 
 import org.springframework.stereotype.Service;
 
+import py.edu.uc.lp3.domain.ModoDisparo;
 import py.edu.uc.lp3exceptions.MunicionAgotadaException;
 import py.edu.uc.lp3exceptions.ValorIlegalException;
 
@@ -15,6 +16,20 @@ public class ReglaDeMunicion {
 
     /** Resultado de aplicar la regla: cuántas balas salen y cuántas quedan en el cargador. */
     public record Resultado(int balasGastadas, int municionRestante) {
+    }
+
+    /**
+     * Consulta pública (POST /api/reglas/municion): los campos llegan del JSON de otro servicio.
+     * Sin modo se toma SEMI (1 bala) y sin reserva, 0.
+     */
+    public Resultado consultar(String arma, Integer municionCargador, Integer municionReserva, ModoDisparo modo) {
+        if (municionCargador == null) {
+            throw new ValorIlegalException("Falta municionCargador");
+        }
+        String nombre = arma == null || arma.isBlank() ? "El arma" : arma;
+        int reserva = municionReserva == null ? 0 : municionReserva;
+        ModoDisparo modoDeDisparo = modo == null ? ModoDisparo.SEMI : modo;
+        return aplicar(nombre, municionCargador, reserva, modoDeDisparo.balasPorDisparo());
     }
 
     public Resultado aplicar(String arma, int municionCargador, int municionReserva, int balasPorDisparo) {

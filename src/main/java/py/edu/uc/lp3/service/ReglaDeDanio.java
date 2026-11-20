@@ -20,6 +20,18 @@ public class ReglaDeDanio {
                             boolean eliminado) {
     }
 
+    /** Consulta pública (POST /api/reglas/danio): valida al objetivo y reparte el daño. */
+    public Resultado consultar(String tirador, Equipo equipoTirador, String objetivo, Equipo equipoObjetivo,
+                               Integer vidaObjetivo, Integer blindajeObjetivo, Integer danio) {
+        if (vidaObjetivo == null || blindajeObjetivo == null || danio == null) {
+            throw new ValorIlegalException("Faltan vidaObjetivo, blindajeObjetivo o danio");
+        }
+        String nombreTirador = tirador == null ? "El tirador" : tirador;
+        String nombreObjetivo = objetivo == null ? "el objetivo" : objetivo;
+        validarObjetivo(nombreTirador, equipoTirador, nombreObjetivo, equipoObjetivo, vidaObjetivo);
+        return repartir(danio, vidaObjetivo, blindajeObjetivo);
+    }
+
     /** El objetivo tiene que ser un enemigo vivo. */
     public void validarObjetivo(String tirador, Equipo equipoTirador, String objetivo,
                                 Equipo equipoObjetivo, int vidaObjetivo) {
