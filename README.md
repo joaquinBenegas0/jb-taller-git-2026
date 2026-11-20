@@ -6,7 +6,7 @@ Autor: Joaquín Benegas ([@joaquinBenegas0](https://github.com/joaquinBenegas0))
 
 **Licencia:** [Apache License 2.0](LICENSE).
 
-**Commit de la solución POO-08:** _(se completa con el enlace al commit de entrega)_
+**Commit de la solución POO-08:** [c090137026e92410bd4fb4ddb73d99561a40ce6e](https://github.com/joaquinBenegas0/jb-taller-git-2026/commit/c090137026e92410bd4fb4ddb73d99561a40ce6e)
 
 ## Cómo arrancarlo
 
@@ -14,7 +14,7 @@ Autor: Joaquín Benegas ([@joaquinBenegas0](https://github.com/joaquinBenegas0))
 ./mvnw spring-boot:run
 ```
 
-El servicio queda en `http://localhost:8080`. Al arrancar, `DatosIniciales` carga una partida de ejemplo con los constructores del dominio, así que en una base recién creada los ids son siempre los mismos:
+El servicio queda en `http://localhost:8080`. Al arrancar, `DatosIniciales` carga una partida de ejemplo con los constructores del dominio y la guarda a través de los services (pasa por las mismas validaciones que un `POST`), así que en una base recién creada los ids son siempre los mismos:
 
 | id | Arma | Tipo | | id | Jugador | Equipo | Arma |
 |---|---|---|---|---|---|---|---|
@@ -40,7 +40,7 @@ En [`application.properties`](src/main/resources/application.properties):
 | `spring.datasource.driver-class-name=org.h2.Driver` | Driver JDBC que habla con H2. |
 | `spring.jpa.hibernate.ddl-auto=create-drop` | Hibernate crea las tablas a partir de las entidades al arrancar y las borra al apagar: cada arranque empieza con la misma partida. |
 | `spring.jpa.show-sql=true` | Muestra en la consola el SQL que genera Hibernate. |
-| `spring.jpa.open-in-view=false` | La sesión de la base se cierra al terminar cada método del controller; la vista no sigue haciendo consultas. |
+| `spring.jpa.open-in-view=false` | La sesión de la base se cierra al terminar cada método `@Transactional` del service; el controller y la vista no siguen haciendo consultas. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2. |
 | `spring.h2.console.path=/h2-console` | Dirección de la consola. |
 
@@ -81,17 +81,20 @@ Participan tres clases persistidas: la familia **`Arma`** (con `ArmaDeFuego` y `
 1. **Munición:** cada disparo de un `ArmaDeFuego` gasta del cargador las balas de su modo de disparo (5 un `RifleAsalto` en automático) y con el cargador vacío no se dispara (`MunicionAgotadaException`).
 2. **Daño con blindaje:** el blindaje del `Jugador` objetivo absorbe hasta la mitad del daño y el resto baja la vida; si la vida llega a 0 queda eliminado y el tirador cobra la recompensa de su arma ($300 de base, $100 el francotirador, $600 el subfusil, $900 la escopeta), sin pasar de $16 000.
 
-`POST /api/simulaciones/disparos` dispara `Jugador.dispararA(objetivo, distancia)`, que aplica las dos reglas y devuelve un `Impacto`; el controller guarda el arma, los dos jugadores y el impacto en una sola transacción. Ejemplo con la partida inicial: Sombra (AK-47) le dispara a Halcón a 20 m → el AK-47 gasta 5 balas (30 → 25) y hace 180 de daño; el blindaje de Halcón absorbe 90 (100 → 10) y su vida baja 90 (100 → 10). Un segundo disparo lo elimina y Sombra pasa de $800 a $1100. Un `GET /api/jugadores/2` y un `GET /api/armas/1` muestran ese estado ya guardado.
+Las reglas viven en la capa service: `ReglaDeMunicion` (regla 1) y `ReglaDeDanio` (regla 2). `POST /api/simulaciones/disparos` llama a `SimulacionService.simular(tiradorId, objetivoId, distancia)`, que valida al tirador y al objetivo, aplica las dos reglas, recién entonces actualiza el arma, los dos jugadores y crea el `Impacto`, y guarda todo en una sola transacción (`@Transactional`). Las entidades solo guardan el estado que el service les pasa. Ejemplo con la partida inicial: Sombra (AK-47) le dispara a Halcón a 20 m → el AK-47 gasta 5 balas (30 → 25) y hace 180 de daño; el blindaje de Halcón absorbe 90 (100 → 10) y su vida baja 90 (100 → 10). Un segundo disparo lo elimina y Sombra pasa de $800 a $1100. Un `GET /api/jugadores/2` y un `GET /api/armas/1` muestran ese estado ya guardado.
 
 ## Excepciones
 
 | Clase | Hereda de | Quién la lanza | HTTP |
 |---|---|---|---|
 | `Cs2Exception` (abstracta) | `RuntimeException` | nadie directamente | — |
-| `RecursoNoEncontradoException` | `Cs2Exception` | los controllers, cuando el repositorio no encuentra el id | 404 |
-| `MunicionAgotadaException` | `Cs2Exception` | `ArmaDeFuego.impactar` (regla 1) | 409 |
-| `DisparoNoPermitidoException` | `Cs2Exception` | `Jugador.dispararA` y `Arma.impactar` (regla 2) | 422 |
-| `IllegalArgumentException` (de Java) | — | los constructores y mensajes que validan invariantes | 400 |
+| `ValorIlegalException` | `Cs2Exception` | `ValidadorDeArmas`, `JugadorService`, `ArmaService` y las reglas, cuando un dato rompe un invariante | 400 |
+| `RecursoNoEncontradoException` | `Cs2Exception` | `ArmaService.buscar` y `JugadorService.buscar`, cuando el repositorio no encuentra el id | 404 |
+| `MunicionAgotadaException` | `Cs2Exception` | `ReglaDeMunicion` (regla 1) | 409 |
+| `DisparoNoPermitidoException` | `Cs2Exception` | `ReglaDeDanio` y `SimulacionService` (regla 2) | 422 |
+| `IllegalArgumentException` (de Java) | — | los records de `rest.dto` cuando falta un campo obligatorio del JSON | 400 |
+
+Ninguna entidad lanza excepciones: todas salen de la capa service.
 
 `ManejadorDeExcepciones` (`@RestControllerAdvice`) tiene un método `@ExceptionHandler` por tipo; cada uno fija su código con `@ResponseStatus`. El JSON de error siempre tiene la misma forma, así que el cliente distingue a las hermanas por `status`, `codigo` y `excepcion`:
 
@@ -112,13 +115,18 @@ src/main/java/py/edu/uc/
 │   ├── Application.java         solo arranca el servicio
 │   ├── config/DatosIniciales     partida de ejemplo al arrancar
 │   ├── constants/ApiPaths        rutas de la API
-│   ├── domain/                   modelo de CS2, entidades JPA y reglas del juego
-│   ├── repository/               interfaces de Spring Data (sin lógica)
+│   ├── domain/                   entidades JPA de CS2: solo estado, sin reglas ni excepciones
+│   ├── repository/               interfaces de Spring Data (sin lógica); solo las usan los services
+│   ├── service/                  lógica de negocio y transacciones: ArmaService, JugadorService,
+│   │                             SimulacionService, ReporteService, ValidadorDeArmas,
+│   │                             ReglaDeMunicion y ReglaDeDanio
 │   └── rest/
-│       ├── controller/           entrada HTTP y ManejadorDeExcepciones
+│       ├── controller/           entrada HTTP (solo llaman a services) y ManejadorDeExcepciones
 │       └── dto/                  JSON de entrada (NuevaArma, CambioDeArma, NuevoJugador, DisparoSimulado)
 └── lp3exceptions/                jerarquía de excepciones del dominio
 ```
+
+**Tres capas.** El controller recibe el pedido HTTP, llama a un método del service y devuelve la respuesta; no conoce ningún repositorio. El service tiene la lógica de negocio, las validaciones y las transacciones (`@Transactional`), y es el único que usa los repositorios. Las entidades del dominio solo guardan estado.
 
 ## Diagrama de clases
 
@@ -136,12 +144,9 @@ classDiagram
         -String nombre
         -int precio
         -Equipo equipo
-        #Arma()
-        #Arma(String nombre, int precio, Equipo equipo)
         +usar() String*
         +renombrar(String nombre) void
         +cambiarPrecio(int precio) void
-        ~impactar(float distancia) int
         +recompensaPorEliminacion() int
     }
     class ArmaDeFuego {
@@ -151,29 +156,23 @@ classDiagram
         -int municionCargador
         -int municionReserva
         +usar() String
-        +disparar() String
-        +disparar(float distancia) String
-        +recargar() String
-        ~impactar(float distancia) int
+        +actualizarMunicion(int cargador, int reserva) void
+        +balasPorDisparo() int
+        +alcanceEfectivo() float
+        +calcularDanioPorBala() int
     }
     class Granada {
         -int danio
         -String efecto
         -boolean lanzada
         +usar() String
-        +lanzar() String
+        +marcarLanzada(long momento) void
     }
     class Pistola
     class RifleAsalto
-    class Francotirador {
-        +recompensaPorEliminacion() int
-    }
-    class Escopeta {
-        +recompensaPorEliminacion() int
-    }
-    class Subfusil {
-        +recompensaPorEliminacion() int
-    }
+    class Francotirador
+    class Escopeta
+    class Subfusil
     class Jugador {
         -Long id
         -String nombre
@@ -181,12 +180,10 @@ classDiagram
         -int vida
         -int blindaje
         -int dinero
-        +Jugador(String nombre, Equipo equipo)
-        +Jugador(String nombre, Equipo equipo, int blindaje, int dinero, Arma arma)
-        +dispararA(Jugador objetivo, float distancia) Impacto
-        -recibirDanio(int danio) void
         +equipar(Arma arma) void
         +soltarArma() void
+        +actualizarSalud(int vida, int blindaje) void
+        +actualizarDinero(int dinero) void
     }
     class Impacto {
         -Long id
@@ -198,19 +195,42 @@ classDiagram
     }
     class ArmaRepository {
         <<interface>>
-        +findByEquipoOrderByPrecioAsc(Equipo e) List~Arma~
-        +findByPrecioLessThanEqualOrderByPrecioAsc(int p) List~Arma~
     }
     class JugadorRepository {
         <<interface>>
-        +findByArma(Arma a) List~Jugador~
     }
     class ImpactoRepository {
         <<interface>>
-        +findByTiradorIdOrderByIdAsc(Long id) List~Impacto~
     }
     class JpaRepository~T,ID~ {
         <<interface>>
+    }
+    class ArmaService {
+        +crear(Arma arma) Arma
+        +actualizar(Long id, String nombre, Integer precio) Arma
+        +retirar(Long id) void
+        +disparar(ArmaDeFuego arma) String
+        +disparar(ArmaDeFuego arma, float distancia) String
+    }
+    class JugadorService {
+        +crear(...) Jugador
+        +buscar(Long id) Jugador
+    }
+    class SimulacionService {
+        +simular(Long tiradorId, Long objetivoId, float distancia) Impacto
+    }
+    class ReporteService {
+        +reportables() List~Reportable~
+    }
+    class ValidadorDeArmas {
+        +validar(Arma arma) void
+    }
+    class ReglaDeMunicion {
+        +aplicar(String arma, int cargador, int reserva, int balasPorDisparo) Resultado
+    }
+    class ReglaDeDanio {
+        +validarObjetivo(...) void
+        +repartir(int danio, int vida, int blindaje) Resultado
     }
     class ArmaController
     class JugadorController
@@ -220,6 +240,7 @@ classDiagram
         <<abstract>>
         +codigo() String*
     }
+    class ValorIlegalException
     class RecursoNoEncontradoException
     class MunicionAgotadaException
     class DisparoNoPermitidoException
@@ -236,27 +257,35 @@ classDiagram
 
     Reportable <|.. Arma
     Reportable <|.. Jugador
-
     Jugador --> "0..1" Arma : arma equipada
-    Jugador ..> Impacto : crea
 
     JpaRepository <|-- ArmaRepository
     JpaRepository <|-- JugadorRepository
     JpaRepository <|-- ImpactoRepository
 
-    ArmaController ..> ArmaRepository : usa
-    ArmaController ..> JugadorRepository : usa
-    JugadorController ..> JugadorRepository : usa
-    SimulacionController ..> JugadorRepository : usa
-    SimulacionController ..> ImpactoRepository : usa
-    ReporteController ..> Reportable : usa
+    ArmaController ..> ArmaService : usa
+    JugadorController ..> JugadorService : usa
+    SimulacionController ..> SimulacionService : usa
+    ReporteController ..> ReporteService : usa
+
+    ArmaService ..> ArmaRepository : usa
+    ArmaService ..> ValidadorDeArmas : usa
+    ArmaService ..> ReglaDeMunicion : usa
+    JugadorService ..> JugadorRepository : usa
+    SimulacionService ..> ReglaDeMunicion : usa
+    SimulacionService ..> ReglaDeDanio : usa
+    SimulacionService ..> ImpactoRepository : usa
+    SimulacionService ..> Impacto : crea
+    ReporteService ..> Reportable : usa
 
     RuntimeException <|-- Cs2Exception
+    Cs2Exception <|-- ValorIlegalException
     Cs2Exception <|-- RecursoNoEncontradoException
     Cs2Exception <|-- MunicionAgotadaException
     Cs2Exception <|-- DisparoNoPermitidoException
-    ArmaDeFuego ..> MunicionAgotadaException : lanza
-    Jugador ..> DisparoNoPermitidoException : lanza
+    ReglaDeMunicion ..> MunicionAgotadaException : lanza
+    ReglaDeDanio ..> DisparoNoPermitidoException : lanza
+    ValidadorDeArmas ..> ValorIlegalException : lanza
     ManejadorDeExcepciones ..> Cs2Exception : traduce a HTTP
 ```
 
@@ -264,25 +293,25 @@ Cómo leerlo:
 
 - **Herencia** (`<|--`, flecha llena): `ArmaDeFuego` y `Granada` *son* `Arma`; las cinco armas de fuego *son* `ArmaDeFuego`.
 - **Implementación de interfaz** (`<|..`, flecha punteada con triángulo): `Arma` y `Jugador`, de familias distintas, cumplen el protocolo `Reportable`.
-- **Uso del repositorio** (`..>` "usa"): los controllers dependen de las interfaces `ArmaRepository`, `JugadorRepository` e `ImpactoRepository`, que extienden `JpaRepository`; Spring genera las implementaciones.
-- **Jerarquía de excepciones** (`<|--` desde `Cs2Exception`): una base abstracta y tres hijas; dos de ellas llevan el nombre de una regla del juego.
+- **Tres capas** (`..>` "usa"): cada controller usa solo su service; los services usan las interfaces `ArmaRepository`, `JugadorRepository` e `ImpactoRepository` (que extienden `JpaRepository`; Spring genera las implementaciones) y las reglas `ReglaDeMunicion` y `ReglaDeDanio`.
+- **Jerarquía de excepciones** (`<|--` desde `Cs2Exception`): una base abstracta y cuatro hijas; dos llevan el nombre de una regla del juego. Las lanzan los services, nunca las entidades.
 
 ## Sobrecarga y sobreescritura
 
 **Sobrecarga** (misma clase, mismo nombre, otra lista de argumentos; Java elige la versión al compilar según los argumentos):
 
-- **Constructores:** `Francotirador(nombre, precio)`, `Francotirador(nombre, precio, equipo)` y el completo; `RifleAsalto` y `Pistola` suman `(nombre, precio, equipo)`; `Granada(…, int danio)` arma una granada explosiva y `Granada(…, String efecto)` una táctica no letal. Las versiones cortas encadenan con `this(...)` hasta el constructor completo, que llama a `super` y valida: toda firma deja el objeto en un estado legal.
-- **Mensaje del dominio:** `ArmaDeFuego.disparar()` y `ArmaDeFuego.disparar(float distanciaMetros)`. Es la misma acción; la segunda indica la distancia y, si supera el alcance efectivo, el daño cae en proporción. Las dos pasan por un único método privado que descuenta munición, así que ninguna puede saltarse esa regla.
+- **Constructores:** `Francotirador(nombre, precio)`, `Francotirador(nombre, precio, equipo)` y el completo; `RifleAsalto` y `Pistola` suman `(nombre, precio, equipo)`; `Granada(…, int danio)` arma una granada explosiva y `Granada(…, String efecto)` una táctica no letal. Las versiones cortas encadenan con `this(...)` hasta el constructor completo, que llama a `super`: toda firma deja el objeto con todos sus atributos. Los invariantes los controla `ValidadorDeArmas` antes de guardar.
+- **Mensaje del service:** `ArmaService.disparar(ArmaDeFuego arma)` y `ArmaService.disparar(ArmaDeFuego arma, float distanciaMetros)`. Es la misma acción; la segunda indica la distancia y, si supera el alcance efectivo, el daño cae en proporción. Las dos pasan por un único método privado que aplica `ReglaDeMunicion`, así que ninguna puede saltarse esa regla.
 
 **Sobreescritura** (misma firma en la clase hija, implementación propia; Java elige la versión al ejecutar según el objeto real):
 
-- `Arma.usar()` es **abstracto**: el padre no puede resolverlo porque cada tipo se usa distinto. Lo sobreescriben dos hijas independientes: `ArmaDeFuego.usar()` dispara y `Granada.usar()` se lanza. `InventarioController` recorre una `List<Arma>` y llama a `usar()` sin ningún `if` por tipo.
+- `Arma.usar()` es **abstracto**: el padre no puede resolverlo porque cada tipo se usa distinto. Lo sobreescriben dos hijas independientes: `ArmaDeFuego.usar()` describe cómo se dispara (balas por disparo, daño y alcance) y `Granada.usar()` cómo se lanza; ninguna cambia estado. `InventarioController` recorre una `List<Arma>` y llama a `usar()` sin ningún `if` por tipo.
 - `alcanceEfectivo()` (nuevo): `ArmaDeFuego` define 50 m; `Escopeta` lo sobreescribe con su distancia efectiva y `Francotirador` lo multiplica por el zoom llamando a `super`.
 - `balasPorDisparo()` (`Pistola`, `RifleAsalto`) y `calcularDanioPorBala()` (`Francotirador`, `Escopeta`) siguen especializando el disparo.
 
 En resumen: la sobrecarga cambia **qué argumentos** recibe un mensaje dentro de una clase; la sobreescritura cambia **cómo responde** cada tipo al mismo mensaje.
 
-- **Nuevo en POO-08:** `recompensaPorEliminacion()` se sobreescribe en `Francotirador`, `Escopeta` y `Subfusil`; `impactar(float)` está en `Arma` (no dispara) y `ArmaDeFuego` lo sobreescribe (gasta balas); `reporteDeCombate()` está en `Arma` y `ArmaDeFuego` lo sobreescribe sumando la munición. `Jugador` tiene dos constructores sobrecargados.
+- **Nuevo en POO-08:** `recompensaPorEliminacion()` se sobreescribe en `Francotirador`, `Escopeta` y `Subfusil`; `balasPorDisparo()`, `alcanceEfectivo()` y `calcularDanioPorBala()` se sobreescriben en las armas de fuego y los usa `ArmaService`; `reporteDeCombate()` está en `Arma` y `ArmaDeFuego` lo sobreescribe sumando la munición. `Jugador` tiene dos constructores sobrecargados.
 
 ## Qué hay que pensar
 
@@ -292,19 +321,19 @@ En resumen: la sobrecarga cambia **qué argumentos** recibe un mensaje dentro de
 
 **Herencia y tablas.** Usamos `SINGLE_TABLE`: toda la familia `Arma` vive en la tabla `ARMA` y la columna `TIPO` dice qué clase es cada fila. En nuestro dominio las armas comparten casi todo (nombre, precio, equipo, munición) y el inventario y los reportes siempre piden "todas las armas", así que una sola tabla evita los `JOIN` de `JOINED` y las uniones de `TABLE_PER_CLASS`. El costo es que las columnas propias de cada hija (por ejemplo `ZOOM`) quedan en `NULL` en las filas de las demás. En el JSON el subtipo viaja en la propiedad `"tipo"`: Jackson la escribe al listar (`@JsonTypeInfo` y `@JsonSubTypes` en `Arma`) y la lee al crear (lo mismo en `NuevaArma`). Elegimos un nombre lógico (`"rifle"`) y no el nombre de la clase Java, para que renombrar una clase no rompa a los clientes.
 
-**Interfaz y repositorio.** El controller depende de `ArmaRepository`, una interfaz: no sabe si detrás hay H2, PostgreSQL o un doble de prueba, y Spring le inyecta la implementación que generó. Es lo mismo que el protocolo de POO-07: quien usa `Reportable` no sabe qué clase concreta tiene enfrente, solo qué mensajes entiende. Si mañana cambiamos H2 por otra base, se tocan `pom.xml` y `application.properties`; el dominio, los repositorios y los controllers se quedan quietos.
+**Interfaz y repositorio.** `ArmaService` depende de `ArmaRepository`, una interfaz: no sabe si detrás hay H2, PostgreSQL o un doble de prueba, y Spring le inyecta la implementación que generó. Es lo mismo que el protocolo de POO-07: quien usa `Reportable` no sabe qué clase concreta tiene enfrente, solo qué mensajes entiende. Si mañana cambiamos H2 por otra base, se tocan `pom.xml` y `application.properties`; el dominio, los repositorios, los services y los controllers se quedan quietos.
 
 **Protocolo del dominio.** La interfaz es `Reportable` (`identificacion()` y `reporteDeCombate()`). La implementan `Arma` (y por herencia todas las armas) y `Jugador`, dos familias distintas. La usa `GET /api/reportes`: junta armas y jugadores en una `List<Reportable>` y les manda el mismo mensaje; `ArmaDeFuego` responde con su munición y `Jugador` con su vida, blindaje y dinero.
 
-**Ocultamiento.** Las reglas numéricas las sostienen las clases del dominio: no hay setters, los constructores y los mensajes (`cambiarPrecio`, `dispararA`, `impactar`) validan, y `recibirDanio` y `cobrarRecompensa` son privados. JPA necesita un constructor sin argumentos, pero lo dejamos `protected`: Hibernate lo puede usar y el controller no. JPA escribe los campos por reflexión (acceso por campo), así que tampoco hizo falta abrir setters. El pedido de Insomnia *POST ilegal: precio negativo* devuelve 400 y *Listar armas: la colección no creció* muestra la misma cantidad que antes: el constructor rechaza el arma antes de que exista, y como el `POST` es transaccional no se guarda nada.
+**Ocultamiento.** Los atributos son privados y no hay setters genéricos: el estado solo cambia con mensajes con nombre del juego (`renombrar`, `cambiarPrecio`, `actualizarMunicion`, `actualizarSalud`, `actualizarDinero`, `equipar`, `soltarArma`), y solo los llaman los services después de validar con `ValidadorDeArmas`, `ReglaDeMunicion` y `ReglaDeDanio`. JPA necesita un constructor sin argumentos, pero lo dejamos `protected`: Hibernate lo puede usar y el controller no. JPA escribe los campos por reflexión (acceso por campo), así que tampoco hizo falta abrir setters. El pedido de Insomnia *POST ilegal: precio negativo* devuelve 400 y *Listar armas: la colección no creció* muestra la misma cantidad que antes: `ArmaService.crear` valida antes de llamar al repositorio, así que no se guarda nada.
 
 **PUT y PATCH.** Usamos `PATCH`: cambia un subconjunto (`nombre`, `precio`) y un campo omitido queda como estaba. No ofrecemos `PUT` porque reemplazar el recurso entero permitiría reescribir la munición o el estado de una granada, que solo deben cambiar con mensajes del juego (disparar, recargar, lanzar).
 
-**DELETE.** Borrar es que la tienda retira el arma: se elimina la fila. Antes, los jugadores que la tenían equipada reciben el mensaje del dominio `soltarArma()`, así ninguno queda apuntando a un arma que no existe. Los `Impacto` guardan el nombre y el id del arma como datos, no como relación, así el historial no se pierde. Responde 204, y un `GET` posterior da 404.
+**DELETE.** Borrar es que la tienda retira el arma: se elimina la fila. Antes, en la misma transacción de `ArmaService.retirar`, los jugadores que la tenían equipada reciben `soltarArma()`, así ninguno queda apuntando a un arma que no existe. Los `Impacto` guardan el nombre y el id del arma como datos, no como relación, así el historial no se pierde. Responde 204, y un `GET` posterior da 404.
 
 **Dos reglas.** Un disparo cambia tres objetos a la vez: el arma (munición), el objetivo (blindaje y vida) y el tirador (dinero si elimina). El recurso HTTP es `/api/simulaciones/disparos`; cada `POST` deja un `Impacto` guardado, y un `GET /api/jugadores/{id}` o `GET /api/armas/{id}` posterior muestra el estado ya persistido.
 
-**Excepciones.** La base es `Cs2Exception`; las hijas son `RecursoNoEncontradoException`, `MunicionAgotadaException` y `DisparoNoPermitidoException`, nombradas por lo que falló. Un recurso inexistente (404) y una regla incumplida (409/422) son tipos distintos: el primero lo detecta el controller al no encontrar el id; las otras dos las lanza el objeto del juego. El JSON de error lleva `status`, `codigo`, `excepcion` y `mensaje`. Son **no comprobadas** (`RuntimeException`): ningún método intermedio puede arreglar un cargador vacío, así que no tiene sentido obligar a cada firma a declarar `throws`; además Spring revierte la transacción por defecto ante una excepción no comprobada, que es justo lo que queremos cuando la regla falla.
+**Excepciones.** La base es `Cs2Exception`; las hijas son `RecursoNoEncontradoException`, `MunicionAgotadaException` y `DisparoNoPermitidoException`, nombradas por lo que falló. Un recurso inexistente (404) y una regla incumplida (409/422) son tipos distintos: el primero lo detecta el service al no encontrar el id; las otras dos las lanzan las reglas del service. Las entidades no lanzan excepciones. El JSON de error lleva `status`, `codigo`, `excepcion` y `mensaje`. Son **no comprobadas** (`RuntimeException`): ningún método intermedio puede arreglar un cargador vacío, así que no tiene sentido obligar a cada firma a declarar `throws`; además Spring revierte la transacción por defecto ante una excepción no comprobada, que es justo lo que queremos cuando la regla falla.
 
 ## Colección de Insomnia
 
