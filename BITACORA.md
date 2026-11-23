@@ -4,7 +4,7 @@
 |---|---|
 | Asistente | Claude (Anthropic), en claude.ai |
 | Modelo LLM | Claude Opus 5.5 (`claude-opus-5-5`) |
-| Ejercicios | POO-04 (Taller de Git), POO-06 (paquetes, constructores y sobrecarga) y POO-08 (CRUD REST, H2, reglas y excepciones) |
+| Ejercicios | POO-04 (Taller de Git), POO-06 (paquetes, constructores y sobrecarga), POO-08 (CRUD REST, H2, reglas y excepciones) y POO-09 (APIs cruzadas) |
 
 ## Resumen de prompts
 
@@ -23,6 +23,16 @@
 10. Le pedí la colección de Insomnia con todos los pedidos que exige el enunciado, pruebas unitarias de las dos reglas, el diagrama Mermaid y las respuestas de «Qué hay que pensar» para el README.
 11. El asistente compiló el código y corrió las reglas del dominio en su entorno, pero no pudo descargar las dependencias de Spring; el arranque con `./mvnw spring-boot:run` y el recorrido de Insomnia los verifiqué yo en mi VM.
 
+### POO-09
+
+12. Le pasé la consigna de POO-09 de Classroom (enunciado, grupos y ejemplo UNO) y le pedí que revise mi repositorio y arme la entrega.
+13. Le pasé la corrección de POO-08 (21,5/24). Le pedí cerrar las observaciones: agregar la capa service con las transacciones, sacar las validaciones, reglas y excepciones de las entidades y completar el enlace al commit en el README.
+14. Le pedí publicar el OpenAPI con springdoc y exponer mis dos reglas como endpoints sin estado (`/api/reglas/municion` y `/api/reglas/danio`), para que mis compañeros las consulten sin depender de los ids de mi base.
+15. Le pasé mi grupo. Primero eran Fabricio González y Matías Enciso; el 23 de noviembre cambió a Matías José Jara García y Marcelo Kropff. Le pedí revisar sus repositorios: Marcelo ya tenía OpenAPI y reglas sin estado, y Matías todavía no. Quedó A2 = Matías (disparo rápido de francotirador) y A3 = Marcelo (vida), y le pedí un mensaje para pedirle a Matías que publique su regla sin estado.
+16. Le pedí los clientes HTTP con `RestClient` (URLs y rutas por propiedades o variables de entorno), el escenario «disparo rápido con francotirador» que guarda en H2 solo si A2 y A3 aceptan, la atribución del rechazo (422 con `rechazadoPor`) y el 503 si un compañero no responde.
+17. Le pedí la colección de Insomnia con el escenario feliz y un rechazo por compañero, un script para guardar las respuestas de ejemplo, y el README y la bitácora al día.
+18. El asistente no pudo descargar las dependencias de Maven, así que compiló contra versiones simuladas de Spring, JPA, Jackson y Mockito y corrió las 12 pruebas en su entorno. El arranque real, el recorrido con los servicios de mis compañeros y las respuestas guardadas los hice yo en mi VM.
+
 ## Cómo lo usé
 
-El asistente propuso el diseño y el código; yo ejecuté cada paso en mi entorno (VM Lubuntu y Git Bash en Windows), revisé las clases antes de cada commit, compilé con `./mvnw -q compile`, probé los endpoints en el navegador y resolví los errores que aparecieron. Los commits y el push los hice yo.
+El asistente propuso el diseño y el código; yo ejecuté cada paso en mi entorno (VM Lubuntu y Git Bash en Windows), revisé las clases antes de cada commit, compilé con `./mvnw -q compile`, probé los endpoints en el navegador y resolví los errores que aparecieron. Los commits y el push los hice yo. En POO-09 apliqué cada parte con `git am` en la VM, entrando por SSH desde PowerShell.
