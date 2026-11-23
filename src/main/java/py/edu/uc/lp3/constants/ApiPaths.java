@@ -9,6 +9,7 @@ public final class ApiPaths {
     public static final String REPORTES = "/api/reportes";
     public static final String DISPAROS = "/api/simulaciones/disparos";
     public static final String REGLAS = "/api/reglas";
+    public static final String ESCENARIO = "/api/escenarios/disparos-rapidos";
     public static final String REGLA_MUNICION = "/municion";
     public static final String REGLA_DANIO = "/danio";
     public static final String POR_ID = "/{id}";

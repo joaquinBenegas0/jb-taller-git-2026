@@ -44,8 +44,26 @@ public class SimulacionService {
         this.reglaDeDanio = reglaDeDanio;
     }
 
+    /** Balas que gasta un disparo rápido de francotirador (escenario de POO-09). */
+    public static final int BALAS_DISPARO_RAPIDO = 2;
+
+    /** Disparo normal: el arma gasta las balas de su modo. */
     @Transactional
     public Impacto simular(Long tiradorId, Long objetivoId, float distancia) {
+        return disparar(tiradorId, objetivoId, distancia, null);
+    }
+
+    /**
+     * Disparo rápido (POO-09): la misma simulación, pero el arma gasta dos balas de una vez.
+     * Que el francotirador esté estabilizado lo decide la regla de A2 antes de llegar acá.
+     */
+    @Transactional
+    public Impacto simularDisparoRapido(Long tiradorId, Long objetivoId, float distancia) {
+        return disparar(tiradorId, objetivoId, distancia, BALAS_DISPARO_RAPIDO);
+    }
+
+    /** balasForzadas null = las balas del modo del arma. */
+    private Impacto disparar(Long tiradorId, Long objetivoId, float distancia, Integer balasForzadas) {
         if (tiradorId == null || objetivoId == null) {
             throw new ValorIlegalException("Faltan tiradorId u objetivoId");
         }
@@ -61,7 +79,8 @@ public class SimulacionService {
                 objetivo.obtenerNombre(), objetivo.obtenerEquipo(), objetivo.obtenerVida());
         // Regla 1: gasta balas; con el cargador vacío lanza MunicionAgotadaException.
         ReglaDeMunicion.Resultado municion = reglaDeMunicion.aplicar(arma.obtenerNombre(),
-                arma.obtenerMunicionCargador(), arma.obtenerMunicionReserva(), arma.balasPorDisparo());
+                arma.obtenerMunicionCargador(), arma.obtenerMunicionReserva(),
+                balasForzadas == null ? arma.balasPorDisparo() : balasForzadas);
         int danio = armas.danioPorBalaA(arma, distancia) * municion.balasGastadas();
         // Regla 2 (reparto): blindaje y vida.
         ReglaDeDanio.Resultado reparto = reglaDeDanio.repartir(danio, objetivo.obtenerVida(),

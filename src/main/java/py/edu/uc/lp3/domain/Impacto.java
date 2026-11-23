@@ -63,6 +63,22 @@ public class Impacto {
         return id;
     }
 
+    public Long obtenerTiradorId() {
+        return tiradorId;
+    }
+
+    public Long obtenerObjetivoId() {
+        return objetivoId;
+    }
+
+    public int obtenerDanioDelArma() {
+        return danioDelArma;
+    }
+
+    public int obtenerVidaRestante() {
+        return vidaRestante;
+    }
+
     public boolean huboEliminacion() {
         return eliminado;
     }
