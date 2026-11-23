@@ -26,11 +26,11 @@ Las pruebas (`./mvnw test`) ahora prueban las reglas en los services, con reposi
 
 ### Mapa del grupo (Counter-Strike 2, trío)
 
-| Rol | Integrante | Repositorio | URL base | OpenAPI | Reglas que publica |
+| Rol | Integrante | Repositorio y commit | URL base | URL del OpenAPI | Sus dos reglas, en una frase cada una |
 |---|---|---|---|---|---|
-| **A1** | Joaquín Benegas (`joaquinBenegas0`) | [jb-taller-git-2026](https://github.com/joaquinBenegas0/jb-taller-git-2026) | `http://localhost:8083` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`POST /api/reglas/municion`) y daño con blindaje (`POST /api/reglas/danio`) |
-| **A2** | Matías José Jara García (`Vanzfranhait`) | [mj-taller-git-2026](https://github.com/Vanzfranhait/mj-taller-git-2026) (commit [`7e4c53a`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/7e4c53a083e98007532e229f523279be1e039159)) | `http://localhost:8080` | `/v3/api-docs` · `/swagger-ui.html` | Explosión de granada y disparo rápido de francotirador (`POST /api/reglas/disparo-rapido`) |
-| **A3** | Marcelo Kropff (`Pomona06`) | [MK-taller-git-2026](https://github.com/Pomona06/MK-taller-git-2026) | `http://localhost:8082` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`/api/reglas/disparo`, `/api/reglas/recarga`) y vida (`/api/reglas/impacto`) |
+| **A1** | Joaquín Benegas (`joaquinBenegas0`) | [jb-taller-git-2026](https://github.com/joaquinBenegas0/jb-taller-git-2026) · [`64faacf`](https://github.com/joaquinBenegas0/jb-taller-git-2026/commit/64faacf5938061d8388f5cdf9417caa5b1d49dfe) | `http://localhost:8083` | `http://localhost:8083/v3/api-docs` (interfaz: `/swagger-ui.html`) | **Munición:** un disparo gasta las balas de su modo y con el cargador vacío no se dispara. **Daño con blindaje:** solo se le dispara a un enemigo vivo, y el blindaje absorbe hasta la mitad del daño. |
+| **A2** | Matías José Jara García (`Vanzfranhait`) | [mj-taller-git-2026](https://github.com/Vanzfranhait/mj-taller-git-2026) · [`7e4c53a`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/7e4c53a083e98007532e229f523279be1e039159) | `http://localhost:8080` | `http://localhost:8080/v3/api-docs` (interfaz: `/swagger-ui.html`) | **Explosión de granada:** si una granada explota, las armas con alcance menor al radio pierden la mitad de su munición. **Recarga (disparo) rápida de francotirador:** con estabilidad mayor a 0.7 puede hacer un disparo rápido que gasta 2 balas, y después queda en 0.5. |
+| **A3** | Marcelo Kropff (`Pomona06`) | [MK-taller-git-2026](https://github.com/Pomona06/MK-taller-git-2026) · [`97bdc6b`](https://github.com/Pomona06/MK-taller-git-2026/commit/97bdc6b9f984f0c22b6a2d880640c7b38edf7ff7) | `http://localhost:8082` | `http://localhost:8082/v3/api-docs` (interfaz: `/swagger-ui.html`) | **Munición:** un arma solo dispara si el cargador tiene las balas de ese disparo, solo recarga si le queda un cargador de reserva y una granada se lanza una sola vez. **Vida:** el daño baja con la distancia, el chaleco desvía una parte y un jugador eliminado no recibe más daño. |
 
 Puertos acordados en el grupo para correr los tres en una sola máquina: Matías 8080, Marcelo 8082 y Joaquín 8083.
 
@@ -96,18 +96,25 @@ El handler distingue a A2 de A3 por el rol que lleva cada excepción.
 
 ### Cómo arrancar los tres servicios
 
-**En una sola máquina** (tres terminales, cada repo en su commit de entrega):
+**En una sola máquina** (tres terminales, cada repo en el commit de la tabla de arriba):
 
 ```
-git clone https://github.com/Pomona06/MK-taller-git-2026.git
-cd MK-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
-```
-```
 git clone https://github.com/Vanzfranhait/mj-taller-git-2026.git
-cd mj-taller-git-2026 && ./mvnw spring-boot:run
+cd mj-taller-git-2026
+git checkout 7e4c53a083e98007532e229f523279be1e039159
+./mvnw spring-boot:run
 ```
 ```
-cd jb-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
+git clone https://github.com/Pomona06/MK-taller-git-2026.git
+cd MK-taller-git-2026
+git checkout 97bdc6b9f984f0c22b6a2d880640c7b38edf7ff7
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
+```
+```
+git clone https://github.com/joaquinBenegas0/jb-taller-git-2026.git
+cd jb-taller-git-2026
+git checkout 64faacf5938061d8388f5cdf9417caa5b1d49dfe
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
 ```
 
 Orden: primero A2 y A3, después A1 (A1 arranca igual sin ellos, pero el escenario responde 503 hasta que estén). Mi servicio también acepta `PORT=8083 ./mvnw spring-boot:run`. Sin argumentos arranca en el 8080. La colección de Insomnia ya trae estos tres puertos en su entorno.
@@ -118,7 +125,7 @@ Orden: primero A2 y A3, después A1 (A1 arranca igual sin ellos, pero el escenar
 A2_URL=http://IP_MATIAS:8080 A3_URL=http://IP_MARCELO:8080 ./mvnw spring-boot:run
 ```
 
-**Si un compañero no responde:** el escenario devuelve 503 y no guarda nada. Las respuestas reales que obtuve con los tres prendidos están en [`insomnia/respuestas/`](insomnia/respuestas/), guardadas con [`insomnia/capturar-respuestas.sh`](insomnia/capturar-respuestas.sh). Las capturé el 23 de noviembre con los tres servicios levantados en mi máquina: Matías en el commit [`7e4c53a`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/7e4c53a083e98007532e229f523279be1e039159) (puerto 8080), Marcelo en `main` (puerto 8082) y el mío en el 8083. Salió todo en el primer intento: 201 en los dos disparos aceptados, 422 con `rechazadoPor: "A3"` cuando Marcelo rechazó a Sombra eliminado (su 409 `JugadorEliminadoException`), 422 con `rechazadoPor: "A2"` en los dos rechazos de Matías (su 400 por estabilidad 0.5 y por tener una sola bala), y al final 2 jugadas guardadas. Coordinamos los contratos por WhatsApp: Matías agregó `POST /api/reglas/disparo-rapido` sin estado para que lo podamos consultar.
+**Si un compañero no responde:** el escenario devuelve 503 y no guarda nada. Las respuestas reales que obtuve con los tres prendidos están en [`insomnia/respuestas/`](insomnia/respuestas/), guardadas con [`insomnia/capturar-respuestas.sh`](insomnia/capturar-respuestas.sh). Las capturé el 23 de noviembre con los tres servicios levantados en mi máquina: Matías en el commit [`7e4c53a`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/7e4c53a083e98007532e229f523279be1e039159) (puerto 8080), Marcelo en el commit [`97bdc6b`](https://github.com/Pomona06/MK-taller-git-2026/commit/97bdc6b9f984f0c22b6a2d880640c7b38edf7ff7) (puerto 8082) y el mío en el 8083. Salió todo en el primer intento: 201 en los dos disparos aceptados, 422 con `rechazadoPor: "A3"` cuando Marcelo rechazó a Sombra eliminado (su 409 `JugadorEliminadoException`), 422 con `rechazadoPor: "A2"` en los dos rechazos de Matías (su 400 por estabilidad 0.5 y por tener una sola bala), y al final 2 jugadas guardadas. Coordinamos los contratos por WhatsApp. Hasta el 23 de noviembre a las 15:31 Matías no tenía OpenAPI y sus reglas solo se podían probar con ids de su base, modificándola; le escribí pidiéndole una consulta sin estado y publicó `POST /api/reglas/disparo-rapido` (commit `94f6bd5`), que es la que consulto.
 
 ## Cómo arrancarlo
 
