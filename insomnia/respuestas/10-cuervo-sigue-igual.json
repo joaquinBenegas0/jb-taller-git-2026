@@ -1,0 +1,1 @@
+{"pedido":"GET http://localhost:8083/api/jugadores/4","status":200,"respuesta":{"id":4,"nombre":"Cuervo","equipo":"TERRORISTAS","vida":100,"blindaje":0,"dinero":800,"arma":{"tipo":"granada","id":6,"nombre":"HE","precio":300,"equipo":"TERRORISTAS","danio":98,"radioExplosion":4.0,"tiempoActivacion":1.5,"esLetal":true,"efecto":"onda expansiva","lanzada":false,"detonada":false}}}

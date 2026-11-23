@@ -1,0 +1,1 @@
+{"pedido":"GET http://localhost:8083/api/armas/2","status":200,"respuesta":{"tipo":"francotirador","id":2,"nombre":"AWP","precio":4750,"equipo":"ANTITERRORISTAS","danio":115,"precision":0.95,"capacidadCargador":5,"tiempoRecarga":3.6,"municionCargador":3,"municionReserva":30,"zoom":4.0,"penetracion":0.5,"zoomActivo":false}}
