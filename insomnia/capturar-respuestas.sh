@@ -5,7 +5,7 @@
 #   A2_URL=http://IP_MATIAS:8080 A3_URL=http://IP_MARCELO:8080 insomnia/capturar-respuestas.sh
 set -u
 A1=${A1_URL:-http://localhost:8083}
-A2=${A2_URL:-http://localhost:8084}
+A2=${A2_URL:-http://localhost:8080}
 A3=${A3_URL:-http://localhost:8082}
 DIR="$(dirname "$0")/respuestas"
 mkdir -p "$DIR"

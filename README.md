@@ -29,16 +29,16 @@ Las pruebas (`./mvnw test`) ahora prueban las reglas en los services, con reposi
 | Rol | Integrante | Repositorio | URL base | OpenAPI | Reglas que publica |
 |---|---|---|---|---|---|
 | **A1** | Joaquín Benegas (`joaquinBenegas0`) | [jb-taller-git-2026](https://github.com/joaquinBenegas0/jb-taller-git-2026) | `http://localhost:8083` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`POST /api/reglas/municion`) y daño con blindaje (`POST /api/reglas/danio`) |
-| **A2** | Matías José Jara García (`Vanzfranhait`) | [mj-taller-git-2026](https://github.com/Vanzfranhait/mj-taller-git-2026) | `http://localhost:8084` | `/v3/api-docs` | Explosión de granada y disparo rápido de francotirador |
+| **A2** | Matías José Jara García (`Vanzfranhait`) | [mj-taller-git-2026](https://github.com/Vanzfranhait/mj-taller-git-2026) (commit [`7e4c53a`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/7e4c53a083e98007532e229f523279be1e039159)) | `http://localhost:8080` | `/v3/api-docs` · `/swagger-ui.html` | Explosión de granada y disparo rápido de francotirador (`POST /api/reglas/disparo-rapido`) |
 | **A3** | Marcelo Kropff (`Pomona06`) | [MK-taller-git-2026](https://github.com/Pomona06/MK-taller-git-2026) | `http://localhost:8082` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`/api/reglas/disparo`, `/api/reglas/recarga`) y vida (`/api/reglas/impacto`) |
 
-Puertos acordados en el grupo para correr los tres en una sola máquina: Marcelo 8082, Joaquín 8083 y Matías 8084.
+Puertos acordados en el grupo para correr los tres en una sola máquina: Matías 8080, Marcelo 8082 y Joaquín 8083.
 
 Round robin: Joaquín consulta a Matías y a Marcelo; Matías consulta a Marcelo y a Joaquín; Marcelo consulta a Joaquín y a Matías. Los tres README tienen que listar las mismas tres URLs.
 
 **Reglas que uso de cada compañero:**
 
-- **A2 · Matías, disparo rápido de francotirador** ([README](https://github.com/Vanzfranhait/mj-taller-git-2026#dos-reglas)): un francotirador con estabilidad mayor a 0.7 puede hacer un disparo rápido que gasta 2 balas, y si no está estabilizado o tiene menos de 2 balas la regla lo rechaza (`ReglaDeJuegoException`, 400). Lo consulto en `POST /api/reglas/disparo-rapido` con `estabilidad` y `municionActual`. _(Confirmar la ruta y los campos con su OpenAPI.)_
+- **A2 · Matías, disparo rápido de francotirador** ([README](https://github.com/Vanzfranhait/mj-taller-git-2026#dos-reglas)): un francotirador con estabilidad mayor a 0.7 puede hacer un disparo rápido que gasta 2 balas, y si no está estabilizado o tiene menos de 2 balas la regla lo rechaza (`ReglaDeJuegoException`, 400). Lo consulto en `POST /api/reglas/disparo-rapido` con `estabilidad` y `municionActual`: responde 200 `{"permitido":true,"municionDespues":3,"estabilidadDespues":0.5}` o 400 `{"error":"regla_de_juego","mensaje":"..."}`, y no modifica su H2.
 - **A3 · Marcelo, vida** ([ficha para el grupo](https://github.com/Pomona06/MK-taller-git-2026/blob/main/docs/PARA-COMPANEROS.md)): el daño baja con la distancia, el chaleco desvía una parte y un jugador con vida 0 ya está eliminado y no recibe más daño (`JugadorEliminadoException`, 409). Lo consulto en `POST /api/reglas/impacto` con `modelo`, `distancia`, `vida` y `blindaje`.
 
 **Mis reglas, tal como las consultan ellos:**
@@ -80,7 +80,7 @@ URL y ruta salen de `application.properties` y se pueden pisar con variables de 
 
 | Propiedad | Variable | Por defecto |
 |---|---|---|
-| `companeros.a2.url` | `A2_URL` | `http://localhost:8084` |
+| `companeros.a2.url` | `A2_URL` | `http://localhost:8080` |
 | `companeros.a2.ruta-disparo-rapido` | `A2_RUTA` | `/api/reglas/disparo-rapido` |
 | `companeros.a3.url` | `A3_URL` | `http://localhost:8082` |
 | `companeros.a3.ruta-impacto` | `A3_RUTA` | `/api/reglas/impacto` |
@@ -104,7 +104,7 @@ cd MK-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--se
 ```
 ```
 git clone https://github.com/Vanzfranhait/mj-taller-git-2026.git
-cd mj-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8084
+cd mj-taller-git-2026 && ./mvnw spring-boot:run
 ```
 ```
 cd jb-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083

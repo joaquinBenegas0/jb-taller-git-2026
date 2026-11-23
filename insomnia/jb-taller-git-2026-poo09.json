@@ -19,7 +19,7 @@
       "name": "Base Environment",
       "data": {
         "a1_url": "http://localhost:8083",
-        "a2_url": "http://localhost:8084",
+        "a2_url": "http://localhost:8080",
         "a3_url": "http://localhost:8082"
       },
       "dataPropertyOrder": {
