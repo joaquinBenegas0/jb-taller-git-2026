@@ -8,7 +8,7 @@ Autor: Joaquín Benegas ([@joaquinBenegas0](https://github.com/joaquinBenegas0))
 
 **Commit de la solución POO-08:** [c090137026e92410bd4fb4ddb73d99561a40ce6e](https://github.com/joaquinBenegas0/jb-taller-git-2026/commit/c090137026e92410bd4fb4ddb73d99561a40ce6e)
 
-**Commit de la solución POO-09:** _(se completa con el enlace al commit de entrega)_
+**Commit de la solución POO-09:** [64faacf5938061d8388f5cdf9417caa5b1d49dfe](https://github.com/joaquinBenegas0/jb-taller-git-2026/commit/64faacf5938061d8388f5cdf9417caa5b1d49dfe) (código, Insomnia y respuestas reales). El commit siguiente solo agrega este enlace al README.
 
 ## POO-09 · Challenge de APIs cruzadas
 
@@ -118,7 +118,7 @@ Orden: primero A2 y A3, después A1 (A1 arranca igual sin ellos, pero el escenar
 A2_URL=http://IP_MATIAS:8080 A3_URL=http://IP_MARCELO:8080 ./mvnw spring-boot:run
 ```
 
-**Si un compañero no responde:** el escenario devuelve 503 y no guarda nada. Las respuestas reales que obtuve con los tres prendidos están en [`insomnia/respuestas/`](insomnia/respuestas/), guardadas con [`insomnia/capturar-respuestas.sh`](insomnia/capturar-respuestas.sh). _(Anotar acá si hubo reintentos o mensajes con algún compañero.)_
+**Si un compañero no responde:** el escenario devuelve 503 y no guarda nada. Las respuestas reales que obtuve con los tres prendidos están en [`insomnia/respuestas/`](insomnia/respuestas/), guardadas con [`insomnia/capturar-respuestas.sh`](insomnia/capturar-respuestas.sh). Las capturé el 23 de noviembre con los tres servicios levantados en mi máquina: Matías en el commit [`7e4c53a`](https://github.com/Vanzfranhait/mj-taller-git-2026/commit/7e4c53a083e98007532e229f523279be1e039159) (puerto 8080), Marcelo en `main` (puerto 8082) y el mío en el 8083. Salió todo en el primer intento: 201 en los dos disparos aceptados, 422 con `rechazadoPor: "A3"` cuando Marcelo rechazó a Sombra eliminado (su 409 `JugadorEliminadoException`), 422 con `rechazadoPor: "A2"` en los dos rechazos de Matías (su 400 por estabilidad 0.5 y por tener una sola bala), y al final 2 jugadas guardadas. Coordinamos los contratos por WhatsApp: Matías agregó `POST /api/reglas/disparo-rapido` sin estado para que lo podamos consultar.
 
 ## Cómo arrancarlo
 
