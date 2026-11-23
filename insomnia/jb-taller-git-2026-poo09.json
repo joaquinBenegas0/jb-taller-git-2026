@@ -18,9 +18,9 @@
       "parentId": "wrk_jb_poo09",
       "name": "Base Environment",
       "data": {
-        "a1_url": "http://localhost:8080",
-        "a2_url": "http://localhost:8082",
-        "a3_url": "http://localhost:8083"
+        "a1_url": "http://localhost:8083",
+        "a2_url": "http://localhost:8084",
+        "a3_url": "http://localhost:8082"
       },
       "dataPropertyOrder": {
         "&": [

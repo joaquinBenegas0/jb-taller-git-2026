@@ -28,9 +28,11 @@ Las pruebas (`./mvnw test`) ahora prueban las reglas en los services, con reposi
 
 | Rol | Integrante | Repositorio | URL base | OpenAPI | Reglas que publica |
 |---|---|---|---|---|---|
-| **A1** | Joaquín Benegas (`joaquinBenegas0`) | [jb-taller-git-2026](https://github.com/joaquinBenegas0/jb-taller-git-2026) | `http://localhost:8080` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`POST /api/reglas/municion`) y daño con blindaje (`POST /api/reglas/danio`) |
-| **A2** | Matías José Jara García (`Vanzfranhait`) | [mj-taller-git-2026](https://github.com/Vanzfranhait/mj-taller-git-2026) | `http://localhost:8082` | `/v3/api-docs` | Explosión de granada y disparo rápido de francotirador |
-| **A3** | Marcelo Kropff (`Pomona06`) | [MK-taller-git-2026](https://github.com/Pomona06/MK-taller-git-2026) | `http://localhost:8083` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`/api/reglas/disparo`, `/api/reglas/recarga`) y vida (`/api/reglas/impacto`) |
+| **A1** | Joaquín Benegas (`joaquinBenegas0`) | [jb-taller-git-2026](https://github.com/joaquinBenegas0/jb-taller-git-2026) | `http://localhost:8083` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`POST /api/reglas/municion`) y daño con blindaje (`POST /api/reglas/danio`) |
+| **A2** | Matías José Jara García (`Vanzfranhait`) | [mj-taller-git-2026](https://github.com/Vanzfranhait/mj-taller-git-2026) | `http://localhost:8084` | `/v3/api-docs` | Explosión de granada y disparo rápido de francotirador |
+| **A3** | Marcelo Kropff (`Pomona06`) | [MK-taller-git-2026](https://github.com/Pomona06/MK-taller-git-2026) | `http://localhost:8082` | `/v3/api-docs` · `/swagger-ui.html` | Munición (`/api/reglas/disparo`, `/api/reglas/recarga`) y vida (`/api/reglas/impacto`) |
+
+Puertos acordados en el grupo para correr los tres en una sola máquina: Marcelo 8082, Joaquín 8083 y Matías 8084.
 
 Round robin: Joaquín consulta a Matías y a Marcelo; Matías consulta a Marcelo y a Joaquín; Marcelo consulta a Joaquín y a Matías. Los tres README tienen que listar las mismas tres URLs.
 
@@ -78,9 +80,9 @@ URL y ruta salen de `application.properties` y se pueden pisar con variables de 
 
 | Propiedad | Variable | Por defecto |
 |---|---|---|
-| `companeros.a2.url` | `A2_URL` | `http://localhost:8082` |
+| `companeros.a2.url` | `A2_URL` | `http://localhost:8084` |
 | `companeros.a2.ruta-disparo-rapido` | `A2_RUTA` | `/api/reglas/disparo-rapido` |
-| `companeros.a3.url` | `A3_URL` | `http://localhost:8083` |
+| `companeros.a3.url` | `A3_URL` | `http://localhost:8082` |
 | `companeros.a3.ruta-impacto` | `A3_RUTA` | `/api/reglas/impacto` |
 
 **Errores:** no se reenvía tal cual el código del compañero. Se traduce a mi jerarquía (`Cs2Exception`):
@@ -97,18 +99,18 @@ El handler distingue a A2 de A3 por el rol que lleva cada excepción.
 **En una sola máquina** (tres terminales, cada repo en su commit de entrega):
 
 ```
-git clone https://github.com/Vanzfranhait/mj-taller-git-2026.git
-cd mj-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
-```
-```
 git clone https://github.com/Pomona06/MK-taller-git-2026.git
-cd MK-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
+cd MK-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
 ```
 ```
-cd jb-taller-git-2026 && ./mvnw spring-boot:run
+git clone https://github.com/Vanzfranhait/mj-taller-git-2026.git
+cd mj-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8084
+```
+```
+cd jb-taller-git-2026 && ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
 ```
 
-Orden: primero A2 y A3, después A1 (A1 arranca igual sin ellos, pero el escenario responde 503 hasta que estén). Mi servicio también acepta `PORT=8082 ./mvnw spring-boot:run`.
+Orden: primero A2 y A3, después A1 (A1 arranca igual sin ellos, pero el escenario responde 503 hasta que estén). Mi servicio también acepta `PORT=8083 ./mvnw spring-boot:run`. Sin argumentos arranca en el 8080. La colección de Insomnia ya trae estos tres puertos en su entorno.
 
 **En las notebooks del laboratorio:** cada uno arranca en su 8080 y A1 apunta a las IP de los otros:
 
