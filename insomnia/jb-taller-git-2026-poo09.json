@@ -1,0 +1,509 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-23T16:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_jb_poo09",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "jb-taller-git-2026 · POO-09 APIs cruzadas",
+      "description": "A1 = Joaquín (este servicio), A2 = Matías Jara (disparo rápido), A3 = Marcelo Kropff (vida). Arrancar los tres servicios y recorrer las carpetas en orden con la base de A1 recién creada.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_jb_poo09",
+      "_type": "environment",
+      "parentId": "wrk_jb_poo09",
+      "name": "Base Environment",
+      "data": {
+        "a1_url": "http://localhost:8080",
+        "a2_url": "http://localhost:8082",
+        "a3_url": "http://localhost:8083"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "a1_url",
+          "a2_url",
+          "a3_url"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_0",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "0. OpenAPI de los tres",
+      "description": "El primer contacto con A2 y A3 es leer su OpenAPI.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 100
+    },
+    {
+      "_id": "req_oa1",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "OpenAPI propio (A1)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/v3/api-docs",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 200,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_oa2",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "OpenAPI de A2 (Matías)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a2_url }}/v3/api-docs",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 300,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_oa3",
+      "_type": "request",
+      "parentId": "fld_0",
+      "name": "OpenAPI de A3 (Marcelo)",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a3_url }}/v3/api-docs",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 400,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_1",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "1. Mis reglas publicadas (las que consultan mis compañeros)",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 500
+    },
+    {
+      "_id": "req_m_ok",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Munición: AK-47 con 30 balas (200)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/reglas/municion",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 600,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"arma\": \"AK-47\",\n  \"municionCargador\": 30,\n  \"municionReserva\": 90,\n  \"modo\": \"AUTOMATICO\"\n}"
+      }
+    },
+    {
+      "_id": "req_m_no",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Munición: cargador vacío (409 MUNICION_AGOTADA)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/reglas/municion",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 700,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"arma\": \"AK-47\",\n  \"municionCargador\": 0,\n  \"municionReserva\": 90,\n  \"modo\": \"AUTOMATICO\"\n}"
+      }
+    },
+    {
+      "_id": "req_d_ok",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Daño: 180 a un enemigo con 100/100 (200)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/reglas/danio",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 800,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tirador\": \"Sombra\",\n  \"equipoTirador\": \"TERRORISTAS\",\n  \"objetivo\": \"Halcón\",\n  \"equipoObjetivo\": \"ANTITERRORISTAS\",\n  \"vidaObjetivo\": 100,\n  \"blindajeObjetivo\": 100,\n  \"danio\": 180\n}"
+      }
+    },
+    {
+      "_id": "req_d_no",
+      "_type": "request",
+      "parentId": "fld_1",
+      "name": "Daño: objetivo ya eliminado (422 DISPARO_NO_PERMITIDO)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/reglas/danio",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 900,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tirador\": \"Sombra\",\n  \"equipoTirador\": \"TERRORISTAS\",\n  \"objetivo\": \"Halcón\",\n  \"equipoObjetivo\": \"ANTITERRORISTAS\",\n  \"vidaObjetivo\": 0,\n  \"blindajeObjetivo\": 0,\n  \"danio\": 180\n}"
+      }
+    },
+    {
+      "_id": "fld_2",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "2. Escenario: camino feliz",
+      "description": "Halcón (AWP, 5 balas) aguanta la respiración y hace un disparo rápido a Sombra a 40 m. A2 acepta (estabilidad 1.0, 5 balas) y A3 acepta (Sombra está vivo).",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1000
+    },
+    {
+      "_id": "req_sombra0",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Antes: Sombra con vida 100",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/jugadores/1",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1100,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_vacio",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Antes: sin jugadas",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1200,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_feliz",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Disparo rápido Halcón → Sombra, aguantando (201)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1300,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 2,\n  \"objetivoId\": 1,\n  \"distancia\": 40,\n  \"aguantaRespiracion\": true\n}"
+      }
+    },
+    {
+      "_id": "req_jug1",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Después: la jugada quedó guardada",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1400,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_sombra1",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Después: Sombra eliminado",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/jugadores/1",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1500,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_awp1",
+      "_type": "request",
+      "parentId": "fld_2",
+      "name": "Después: la AWP quedó con 3 balas",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/armas/2",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1600,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_3",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "3. Rechazo de A3 (vida)",
+      "description": "Otro disparo rápido a Sombra: A2 acepta (3 balas, estabilidad 1.0) pero A3 lo rechaza porque Sombra ya está eliminado.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1700
+    },
+    {
+      "_id": "req_rech3",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "Halcón → Sombra eliminado (422, rechazadoPor A3)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1800,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 2,\n  \"objetivoId\": 1,\n  \"distancia\": 40,\n  \"aguantaRespiracion\": true\n}"
+      }
+    },
+    {
+      "_id": "req_awp2",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "Después: la AWP sigue con 3 balas",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/armas/2",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 1900,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_jug2",
+      "_type": "request",
+      "parentId": "fld_3",
+      "name": "Después: sigue 1 jugada",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2000,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_4",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "4. Rechazo de A2 (disparo rápido)",
+      "description": "Halcón le dispara a Cuervo sin aguantar la respiración: estabilidad 0.5, A2 lo rechaza y no se le pregunta a A3.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2100
+    },
+    {
+      "_id": "req_cuervo0",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Antes: Cuervo con vida 100",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/jugadores/4",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2200,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_rech2",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Halcón → Cuervo sin aguantar (422, rechazadoPor A2)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2300,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 2,\n  \"objetivoId\": 4,\n  \"distancia\": 40,\n  \"aguantaRespiracion\": false\n}"
+      }
+    },
+    {
+      "_id": "req_cuervo1",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Después: Cuervo sigue con vida 100",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/jugadores/4",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2400,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_awp3",
+      "_type": "request",
+      "parentId": "fld_4",
+      "name": "Después: la AWP sigue con 3 balas",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/api/armas/2",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2500,
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "fld_5",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "5. Rechazo de A2 por munición",
+      "description": "Con 3 balas pasa un disparo rápido más (queda 1); el siguiente A2 lo rechaza porque hacen falta 2.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2600
+    },
+    {
+      "_id": "req_cuervo2",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Halcón → Cuervo aguantando (201, la AWP queda con 1)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2700,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 2,\n  \"objetivoId\": 4,\n  \"distancia\": 40,\n  \"aguantaRespiracion\": true\n}"
+      }
+    },
+    {
+      "_id": "req_rech2b",
+      "_type": "request",
+      "parentId": "fld_5",
+      "name": "Halcón → Cuervo con 1 bala (422, rechazadoPor A2)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2800,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 2,\n  \"objetivoId\": 4,\n  \"distancia\": 40,\n  \"aguantaRespiracion\": true\n}"
+      }
+    },
+    {
+      "_id": "fld_6",
+      "_type": "request_group",
+      "parentId": "wrk_jb_poo09",
+      "name": "6. Compañero caído",
+      "description": "Con A2 o A3 apagado el escenario responde 503 y no guarda nada.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2900
+    },
+    {
+      "_id": "req_caido",
+      "_type": "request",
+      "parentId": "fld_6",
+      "name": "Disparo rápido con un compañero apagado (503)",
+      "description": "",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/api/escenarios/disparos-rapidos",
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3000,
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tiradorId\": 2,\n  \"objetivoId\": 4,\n  \"distancia\": 40,\n  \"aguantaRespiracion\": true\n}"
+      }
+    }
+  ]
+}
