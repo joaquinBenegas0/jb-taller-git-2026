@@ -6,9 +6,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import py.edu.uc.lp3exceptions.CompaneroNoDisponibleException;
 import py.edu.uc.lp3exceptions.Cs2Exception;
 import py.edu.uc.lp3exceptions.DisparoNoPermitidoException;
 import py.edu.uc.lp3exceptions.MunicionAgotadaException;
+import py.edu.uc.lp3exceptions.RechazoDeCompaneroException;
 import py.edu.uc.lp3exceptions.RecursoNoEncontradoException;
 import py.edu.uc.lp3exceptions.ValorIlegalException;
 
@@ -18,6 +24,12 @@ import py.edu.uc.lp3exceptions.ValorIlegalException;
  */
 @RestControllerAdvice
 public class ManejadorDeExcepciones {
+
+    private final ObjectMapper json;
+
+    public ManejadorDeExcepciones(ObjectMapper json) {
+        this.json = json;
+    }
 
     /** Cuerpo JSON de todo error: el cliente distingue los tipos por "status", "codigo" y "excepcion". */
     public record ErrorRespuesta(int status, String codigo, String excepcion, String mensaje) {
@@ -43,6 +55,32 @@ public class ManejadorDeExcepciones {
         return deDominio(HttpStatus.UNPROCESSABLE_ENTITY, e);
     }
 
+    /**
+     * Error del escenario cruzado: además de los campos de siempre dice qué compañero (A2 o A3)
+     * rechazó, con qué código y qué respondió su servicio, tal cual.
+     */
+    public record RechazoRespuesta(int status, String codigo, String excepcion, String mensaje,
+                                   String rechazadoPor, String companero, int statusDelCompanero,
+                                   JsonNode respuestaDelCompanero) {
+    }
+
+    /** Una regla ajena rechazó la jugada: no se guardó nada en H2. */
+    @ExceptionHandler(RechazoDeCompaneroException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public RechazoRespuesta rechazoDeCompanero(RechazoDeCompaneroException e) {
+        return new RechazoRespuesta(HttpStatus.UNPROCESSABLE_ENTITY.value(), e.codigo(),
+                e.getClass().getSimpleName(), e.getMessage(), e.rol(), e.companero(),
+                e.statusDelCompanero(), comoJson(e.respuestaDelCompanero()));
+    }
+
+    /** No se pudo hablar con un compañero: tampoco se guarda nada, pero no es un rechazo de su regla. */
+    @ExceptionHandler(CompaneroNoDisponibleException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public RechazoRespuesta companeroNoDisponible(CompaneroNoDisponibleException e) {
+        return new RechazoRespuesta(HttpStatus.SERVICE_UNAVAILABLE.value(), e.codigo(),
+                e.getClass().getSimpleName(), e.getMessage(), e.rol(), e.companero(), 0, null);
+    }
+
     /** Un service rechazó un dato que rompe un invariante (precio 0, blindaje 150...): no se guardó nada. */
     @ExceptionHandler(ValorIlegalException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -65,6 +103,18 @@ public class ManejadorDeExcepciones {
         return new ErrorRespuesta(HttpStatus.BAD_REQUEST.value(), "JSON_INVALIDO",
                 e.getClass().getSimpleName(),
                 "El cuerpo no se pudo leer: revisá el JSON, el campo \"tipo\" y los valores de \"equipo\"");
+    }
+
+    /** La respuesta del compañero como JSON; si no era JSON, como texto. */
+    private JsonNode comoJson(String cuerpo) {
+        if (cuerpo == null || cuerpo.isBlank()) {
+            return null;
+        }
+        try {
+            return json.readTree(cuerpo);
+        } catch (Exception e) {
+            return TextNode.valueOf(cuerpo);
+        }
     }
 
     private static ErrorRespuesta deDominio(HttpStatus status, Cs2Exception e) {
